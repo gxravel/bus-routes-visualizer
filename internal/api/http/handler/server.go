@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"encoding/json"
 	"net/http"
 
 	"github.com/gxravel/bus-routes-visualizer/assets"
@@ -15,8 +14,9 @@ import (
 
 type Server struct {
 	*http.Server
-	logger     logger.Logger
-	visualizer *visualizer.Visualizer
+	logger       logger.Logger
+	visualizer   *visualizer.Visualizer
+	busroutesAPI string
 }
 
 func NewServer(
@@ -30,8 +30,9 @@ func NewServer(
 			ReadTimeout:  cfg.API.ReadTimeout,
 			WriteTimeout: cfg.API.WriteTimeout,
 		},
-		logger:     logger.WithStr("module", "api:http"),
-		visualizer: visualizer,
+		logger:       logger.WithStr("module", "api:http"),
+		visualizer:   visualizer,
+		busroutesAPI: cfg.API.BusRoutes,
 	}
 
 	r := chi.NewRouter()
@@ -45,6 +46,14 @@ func NewServer(
 
 	r.Route("/internal", func(r chi.Router) {
 		r.Get("/health", srv.getHealth)
+	})
+
+	r.Route("/api", func(r chi.Router) {
+		r.Route("/v1", func(r chi.Router) {
+			r.Route("/graphs", func(r chi.Router) {
+				r.Get("/", srv.getGraph)
+			})
+		})
 	})
 
 	srv.Handler = r
@@ -61,10 +70,10 @@ func registerSwagger(r *chi.Mux) {
 	r.Get("/internal/swagger/*", swaggerHandler.ServeHTTP)
 }
 
-func (s *Server) processRequest(r *http.Request, data interface{}) error {
-	if err := json.NewDecoder(r.Body).Decode(data); err != nil {
-		s.logger.WithErr(err).Error("decoding data")
-		return err
-	}
-	return nil
-}
+// func (s *Server) processRequest(r *http.Request, data interface{}) error {
+// 	if err := json.NewDecoder(r.Body).Decode(data); err != nil {
+// 		s.logger.WithErr(err).Error("decoding data")
+// 		return err
+// 	}
+// 	return nil
+// }
