@@ -8,13 +8,14 @@ config:
 
   db:
     url: gxravel:gxravel@tcp(localhost:3309)
-    schema_name: bus_routes_visualizer_visualizer
+    schema_name: bus_routes_visualizer
     max_open_conns: 2
     max_idle_conns: 2
 
   api:
     serve_swagger: true
     address: ":8000"
+    busroutes: "http://localhost:8090/api/v1"
     read_timeout: 5s
     write_timeout: 5s
 

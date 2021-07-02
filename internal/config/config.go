@@ -25,6 +25,7 @@ type Config struct {
 type api struct {
 	ServeSwagger bool          `mapstructure:"serve_swagger"`
 	Address      string        `mapstructure:"address"`
+	BusRoutes    string        `mapstructure:"busroutes"`
 	ReadTimeout  time.Duration `mapstructure:"read_timeout"`
 	WriteTimeout time.Duration `mapstructure:"write_timeout"`
 }
@@ -61,6 +62,7 @@ var defaults = map[string]interface{}{
 
 	"api.serve_swagger": true,
 	"api.address":       ":8000",
+	"api.busroutes":     ":8090/api/v1",
 	"api.read_timeout":  time.Second * 5,
 	"api.write_timeout": time.Second * 5,
 
