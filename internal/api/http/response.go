@@ -56,6 +56,11 @@ func RespondDataOK(ctx context.Context, w http.ResponseWriter, val interface{}) 
 	RespondData(ctx, w, http.StatusOK, val)
 }
 
+// RespondEmptyItems responds with empty items and 200 status code.
+func RespondEmptyItems(ctx context.Context, w http.ResponseWriter) {
+	RespondData(ctx, w, http.StatusOK, RangeItemsResponse{})
+}
+
 // RespondData responds with custom status code and JSON in format: {"data": <val>}.
 func RespondData(ctx context.Context, w http.ResponseWriter, code int, val interface{}) {
 	RespondJSON(ctx, w, code, &Response{
