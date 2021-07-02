@@ -1,0 +1,47 @@
+swagger: "2.0"
+
+info:
+  title: busroutes-visualizer
+  version: 0.0.1
+
+schemes:
+  - http
+
+consumes:
+  - application/json
+
+produces:
+  - application/json
+
+securityDefinitions:
+  authorization_header:
+    description: Аутентификационный токен. Формат "Bearer токен"
+    type: apiKey
+    name: Authorization
+    in: header
+
+definitions:
+  Token:
+    properties:
+      token:
+        description: JWT
+        type: string
+        example: eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.VFb0qJ1LRg_4ujbZoRMXnVkUgiuKq5KxWqNdbKq_G9Vvz-S1zZa9LPxtHWKa64zDl2ofkT8F6jBt_K4riU-fPg
+      expiry:
+        description: Время, до наступления которого токен валиден
+
+tags:
+  - name: internal
+    description: Internal routes
+
+paths:
+  /internal/health:
+    get:
+      summary: Health
+      tags:
+        - internal
+      responses:
+        "200":
+          description: Success
+        "500":
+          description: Internal Server Error

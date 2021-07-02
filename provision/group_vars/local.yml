@@ -1,0 +1,26 @@
+config:
+  environment: develop
+  shutdown_timeout: 5s
+
+  logger:
+    level: debug
+    format: json
+
+  db:
+    url: gxravel:gxravel@tcp(localhost:3309)
+    schema_name: bus_routes_visualizer_visualizer
+    max_open_conns: 2
+    max_idle_conns: 2
+
+  api:
+    serve_swagger: true
+    address: ":8000"
+    read_timeout: 5s
+    write_timeout: 5s
+
+  jwt:
+    access_key: jwt_access_very_strong_key
+    access_expiry: 15m
+
+  storage:
+    redis_dsn: localhost:6378
