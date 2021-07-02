@@ -14,7 +14,8 @@ db:
 api:
     serve_swagger: {{ config.api.serve_swagger }} # default: false
     # serve /version
-    address: {{ config.api.address }} # default: ":4000"
+    address: {{ config.api.address }} # default: ":8000"
+    busroutes: {{ config.api.busroutes }} # default: ":8090/api/v1"
     read_timeout: {{ config.api.read_timeout }} # default: 5s
     write_timeout: {{ config.api.write_timeout }} # default: 5s
 
