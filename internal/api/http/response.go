@@ -70,7 +70,11 @@ func RespondError(ctx context.Context, w http.ResponseWriter, err error) {
 
 	RespondJSON(ctx, w, code, &Response{
 		Error: &ierr.APIError{
-			Reason: reason,
+			Reason: &ierr.APIReason{
+				RType:   reason.RType,
+				Err:     reason.Error(),
+				Message: reason.Message,
+			},
 		},
 	})
 }

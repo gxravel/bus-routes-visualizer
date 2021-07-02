@@ -15,9 +15,9 @@ const (
 
 // Reason describes error reason.
 type Reason struct {
-	RType   ReasonType `json:"type"`
-	Err     TypedError `json:"error"`
-	Message string     `json:"message,omitempty"`
+	RType   ReasonType
+	Err     TypedError
+	Message string
 }
 
 func (r *Reason) Type() ReasonType { return r.RType }
