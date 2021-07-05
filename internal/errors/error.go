@@ -54,7 +54,7 @@ func ConvertToReason(err error) *Reason {
 	case TypedError:
 		return NewReason(val)
 	default:
-		typedError := newTypedError(ReasonUnknownError, val)
+		typedError := NewTypedError(ReasonUnknownError, val)
 		return NewReason(typedError)
 	}
 }
@@ -86,7 +86,7 @@ func (e *typedError) Cause() error {
 	return e.err
 }
 
-func newTypedError(reasonType ReasonType, err error) TypedError {
+func NewTypedError(reasonType ReasonType, err error) TypedError {
 	return &typedError{
 		reasonType: reasonType,
 		err:        err,

@@ -83,15 +83,20 @@ const (
 	ErrInternalServer InternalServerError = "internal server error"
 )
 
-type ProviderAPIError string
+type ProviderAPIErr struct {
+	message string
+	code    int
+}
 
-func (e ProviderAPIError) Error() string { return string(e) }
+func (e ProviderAPIErr) Error() string       { return e.message }
+func (e ProviderAPIErr) HTTPStatusCode() int { return e.code }
 
-const (
-	// ErrProviderAPI detects if error occured at provider api,
-	// usually to send it further.
-	ErrProviderAPI ProviderAPIError = "provider api error"
-)
+func NewProviderAPIError(message string, code int) *ProviderAPIErr {
+	return &ProviderAPIErr{
+		message: message,
+		code:    code,
+	}
+}
 
 func ResolveStatusCode(err error) int {
 	var code int
