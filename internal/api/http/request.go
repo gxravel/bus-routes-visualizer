@@ -29,6 +29,6 @@ func ParseGraphsRequest(r *http.Request, api string) (string, error) {
 		return "", err
 	}
 
-	url := fmt.Sprintf("%s/buses?cities=%s&nums=%s", api, city, bus)
+	url := fmt.Sprintf("%s?cities=%s&nums=%s", api, city, bus)
 	return url, nil
 }
