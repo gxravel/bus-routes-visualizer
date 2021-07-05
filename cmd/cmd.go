@@ -11,7 +11,9 @@ import (
 	"github.com/gxravel/bus-routes-visualizer/internal/config"
 	"github.com/gxravel/bus-routes-visualizer/internal/database"
 	"github.com/gxravel/bus-routes-visualizer/internal/dataprovider/mysql"
+	"github.com/gxravel/bus-routes-visualizer/internal/jwt"
 	"github.com/gxravel/bus-routes-visualizer/internal/logger"
+	"github.com/gxravel/bus-routes-visualizer/internal/storage"
 	"github.com/gxravel/bus-routes-visualizer/internal/visualizer"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -57,18 +59,21 @@ func main() {
 		log.WithErr(err).Fatal("can't migrate the db")
 	}
 
-	// storage, err := storage.NewClient(*cfg)
-	// if err != nil {
-	// 	log.WithErr(err).Fatal("connecting to storage client")
-	// }
+	storage, err := storage.NewClient(*cfg)
+	if err != nil {
+		log.WithErr(err).Fatal("connecting to storage client")
+	}
 
 	txer := mysql.NewTxManager(db)
+
+	jwtManager := jwt.New(storage, *cfg)
 
 	visualizer := visualizer.New(
 		cfg,
 		db,
 		log,
 		txer,
+		jwtManager,
 	)
 
 	apiServer := handler.NewServer(

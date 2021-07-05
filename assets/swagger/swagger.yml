@@ -21,20 +21,18 @@ securityDefinitions:
     in: header
 
 definitions:
-  Token:
+  RoutePoint:
     properties:
-      token:
-        description: JWT
-        type: string
-        example: eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.VFb0qJ1LRg_4ujbZoRMXnVkUgiuKq5KxWqNdbKq_G9Vvz-S1zZa9LPxtHWKa64zDl2ofkT8F6jBt_K4riU-fPg
-      expiry:
-        description: Время, до наступления которого токен валиден
-  Bus:
-    properties:
-      id:
-        description: Идентификатор автобуса
+      step:
+        description: Порядковый номер остановки по маршруту автобуса
         type: integer
         example: 1
+      address:
+        description: Адрес остановки
+        type: string
+        example: ул. Улица, 1
+  RouteDetailed:
+    properties:
       city:
         description: Название города
         type: string
@@ -42,31 +40,25 @@ definitions:
       num:
         description: Номер автобуса
         type: string
-        example: "11"
-
-tags:
-  - name: internal
-    description: Internal routes
-  - name: graphs
-    description: Graphs routes
+        example: "1"
+      points:
+        description: Точки остановок
+        type: array
+        items:
+          $ref: "#/definitions/RoutePoint"
 
 paths:
-  /internal/health:
-    get:
-      summary: Health
-      tags:
-        - internal
-      responses:
-        "200":
-          description: Success
-        "500":
-          description: Internal Server Error
-
   /api/v1/graphs:
     get:
       summary: Получение графа маршрутов автобуса
       tags:
-        - internal
+        - graphs
+      security:
+        - authorization_header: []
+      description: |
+        Для пользователей с типом:
+        `admin`
+        `service`
       parameters:
         - name: city
           description: Город
@@ -82,8 +74,12 @@ paths:
         "200":
           description: Success
           schema:
-            $ref: "#/definitions/Bus"
+            $ref: "#/definitions/RouteDetailed"
         "400":
           description: Bad request
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
         "500":
           description: Internal server error
