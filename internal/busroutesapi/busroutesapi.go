@@ -29,7 +29,7 @@ const (
 // GetRoutesDetailed makes 2 requests to the API:
 // 1) /buses for receiving buses ids
 // 2) /routes/detailed for receiving routes.
-func GetRoutesDetailed(ctx context.Context, api string, url string) (*busroutesapi.RangeRoutesResponse, error) {
+func GetRoutesDetailed(ctx context.Context, api string, url string) ([]*busroutesapi.RouteDetailed, error) {
 	logger := log.FromContext(ctx).WithStr("url", url)
 	logger.Debug("going for buses")
 
@@ -74,7 +74,7 @@ func GetRoutesDetailed(ctx context.Context, api string, url string) (*busroutesa
 		return nil, nil
 	}
 
-	return routes, nil
+	return routes.Routes, nil
 }
 
 // getItems makes request to the busroutes api

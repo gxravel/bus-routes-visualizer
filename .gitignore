@@ -9,6 +9,8 @@ bin/
 
 config.example.json
 
+internal/drawing/data
+
 # Test binary, built with `go test -c`
 *.test
 
