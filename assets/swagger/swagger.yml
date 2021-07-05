@@ -20,37 +20,12 @@ securityDefinitions:
     name: Authorization
     in: header
 
-definitions:
-  RoutePoint:
-    properties:
-      step:
-        description: Порядковый номер остановки по маршруту автобуса
-        type: integer
-        example: 1
-      address:
-        description: Адрес остановки
-        type: string
-        example: ул. Улица, 1
-  RouteDetailed:
-    properties:
-      city:
-        description: Название города
-        type: string
-        example: Москва
-      num:
-        description: Номер автобуса
-        type: string
-        example: "1"
-      points:
-        description: Точки остановок
-        type: array
-        items:
-          $ref: "#/definitions/RoutePoint"
-
 paths:
   /api/v1/graphs:
     get:
       summary: Получение графа маршрутов автобуса
+      produces:
+        - image/png
       tags:
         - graphs
       security:
@@ -73,8 +48,6 @@ paths:
       responses:
         "200":
           description: Success
-          schema:
-            $ref: "#/definitions/RouteDetailed"
         "400":
           description: Bad request
         "401":

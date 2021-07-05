@@ -27,6 +27,12 @@ func (r *Visualizer) GetRoutesDetailed(ctx context.Context, url string) ([]*v1.R
 	return routes, nil
 }
 
+// DrawGraph returns path to the graph image.
+func (r *Visualizer) DrawGraph(routes []*v1.RouteDetailed) (string, error) {
+	graphName := routes[0].City + "_" + routes[0].Bus
+	return drawing.DrawRoutes(graphName, routes)
+}
+
 func toDBRoutes(routes []*v1.RouteDetailed) []*model.Route {
 	var dbRoutes = make([]*model.Route, 0, len(routes))
 	for i, r := range routes {

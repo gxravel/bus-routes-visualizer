@@ -16,7 +16,7 @@ func (s *Server) getGraph(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	routes, err := busroutesapi.GetRoutesDetailed(ctx, s.busroutesAPI, url)
+	routes, err := s.visualizer.GetRoutesDetailed(ctx, url)
 	if err != nil {
 		api.RespondError(ctx, w, err)
 		return
@@ -26,5 +26,11 @@ func (s *Server) getGraph(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	api.RespondDataOK(ctx, w, routes)
+	path, err := s.visualizer.DrawGraph(routes)
+	if err != nil {
+		api.RespondError(ctx, w, err)
+		return
+	}
+
+	api.RespondPNG(ctx, w, path)
 }

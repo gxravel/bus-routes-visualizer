@@ -99,7 +99,7 @@ func CheckDuplicate(err error, field string) error {
 	if strings.Contains(err.Error(), "Duplicate") {
 		return NewReason(ErrConflict).WithMessage("the " + field + " is already in use")
 	}
-	return err
+	return nil
 }
 
 type causer interface {

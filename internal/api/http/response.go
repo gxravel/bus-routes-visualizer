@@ -3,7 +3,10 @@ package api
 import (
 	"context"
 	"encoding/json"
+	"io"
 	"net/http"
+	"os"
+	"strconv"
 
 	ierr "github.com/gxravel/bus-routes-visualizer/internal/errors"
 	"github.com/gxravel/bus-routes-visualizer/internal/logger"
@@ -11,7 +14,9 @@ import (
 
 const (
 	headerContentType   = "Content-Type"
+	headerContentLength = "Content-Length"
 	mimeApplicationJSON = "application/json"
+	mimeImagePNG        = "image/png"
 )
 
 type RangeItemsResponse struct {
@@ -36,6 +41,30 @@ func RespondJSON(ctx context.Context, w http.ResponseWriter, code int, data inte
 
 	if err := json.NewEncoder(w).Encode(&data); err != nil {
 		logger.FromContext(ctx).WithErr(err).Error("encoding data to respond with json")
+	}
+}
+
+func RespondPNG(ctx context.Context, w http.ResponseWriter, path string) {
+	file, err := os.Open(path)
+	if err != nil {
+		logger.FromContext(ctx).WithErr(err).Error("unable to open file")
+		return
+	}
+	defer file.Close()
+
+	fi, err := file.Stat()
+	if err != nil {
+		logger.FromContext(ctx).WithErr(err).Error("unable to read file info")
+		return
+	}
+
+	w.Header().Set(headerContentType, mimeImagePNG)
+	w.Header().Set(headerContentLength, strconv.FormatInt(fi.Size(), 10))
+
+	_, err = io.Copy(w, file)
+	if err != nil {
+		logger.FromContext(ctx).WithErr(err).Error("unable to open file")
+		return
 	}
 }
 
