@@ -8,7 +8,7 @@ services:
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: bus_routes_visualizer_visualizer
+      MYSQL_DATABASE: bus_routes_visualizer
       MYSQL_USER: gxravel
       MYSQL_PASSWORD: gxravel
     ports:

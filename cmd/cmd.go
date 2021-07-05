@@ -65,6 +65,8 @@ func main() {
 	}
 
 	txer := mysql.NewTxManager(db)
+	routeStore := mysql.NewRouteStore(db, txer)
+	routePointStore := mysql.NewRoutePointStore(db, txer)
 
 	jwtManager := jwt.New(storage, *cfg)
 
@@ -73,6 +75,8 @@ func main() {
 		db,
 		log,
 		txer,
+		routeStore,
+		routePointStore,
 		jwtManager,
 	)
 

@@ -9,11 +9,13 @@ import (
 )
 
 type Visualizer struct {
-	config       *config.Config
-	db           *database.Client
-	logger       logger.Logger
-	txer         dataprovider.Txer
-	tokenManager jwt.Manager
+	config          *config.Config
+	db              *database.Client
+	logger          logger.Logger
+	txer            dataprovider.Txer
+	routeStore      dataprovider.RouteStore
+	routePointStore dataprovider.RoutePointStore
+	tokenManager    jwt.Manager
 }
 
 func New(
@@ -21,13 +23,17 @@ func New(
 	db *database.Client,
 	logger logger.Logger,
 	txer dataprovider.Txer,
+	routeStore dataprovider.RouteStore,
+	routePointStore dataprovider.RoutePointStore,
 	jwtManager jwt.Manager,
 ) *Visualizer {
 	return &Visualizer{
-		config:       config,
-		db:           db,
-		logger:       logger,
-		txer:         txer,
-		tokenManager: jwtManager,
+		config:          config,
+		db:              db,
+		logger:          logger,
+		txer:            txer,
+		tokenManager:    jwtManager,
+		routeStore:      routeStore,
+		routePointStore: routePointStore,
 	}
 }
