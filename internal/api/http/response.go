@@ -21,7 +21,7 @@ const (
 )
 
 const (
-	headerContentType   = "Content-Type"
+	HeaderContentType   = "Content-Type"
 	headerContentLength = "Content-Length"
 )
 
@@ -31,7 +31,7 @@ func RespondJSON(ctx context.Context, w http.ResponseWriter, code int, data inte
 		return
 	}
 
-	w.Header().Set(headerContentType, MIMEApplicationJSON.String())
+	w.Header().Set(HeaderContentType, MIMEApplicationJSON.String())
 
 	w.WriteHeader(code)
 
@@ -44,7 +44,7 @@ func RespondJSON(ctx context.Context, w http.ResponseWriter, code int, data inte
 }
 
 func RespondBytes(ctx context.Context, w http.ResponseWriter, code int, mime MIME, size int64, data []byte) {
-	w.Header().Set(headerContentType, mime.String())
+	w.Header().Set(HeaderContentType, mime.String())
 	w.Header().Set(headerContentLength, strconv.FormatInt(size, 10))
 
 	w.WriteHeader(code)
@@ -58,7 +58,7 @@ func RespondBytes(ctx context.Context, w http.ResponseWriter, code int, mime MIM
 }
 
 func RespondImageOK(ctx context.Context, w http.ResponseWriter, size int64, data []byte) {
-	RespondBytes(ctx, w, http.StatusAccepted, MIMEImagePNG, size, data)
+	RespondBytes(ctx, w, http.StatusOK, MIMEImagePNG, size, data)
 }
 
 func RespondEmpty(w http.ResponseWriter) {

@@ -1,4 +1,4 @@
-package busroutesapi
+package v1
 
 import (
 	ierr "github.com/gxravel/bus-routes-visualizer/internal/errors"

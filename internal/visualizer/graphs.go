@@ -6,17 +6,16 @@ import (
 	"io"
 	"os"
 
-	"github.com/gxravel/bus-routes-visualizer/internal/busroutesapi"
-	v1 "github.com/gxravel/bus-routes-visualizer/internal/busroutesapi/v1"
 	"github.com/gxravel/bus-routes-visualizer/internal/drawing"
 	ierr "github.com/gxravel/bus-routes-visualizer/internal/errors"
 	log "github.com/gxravel/bus-routes-visualizer/internal/logger"
 	"github.com/gxravel/bus-routes-visualizer/internal/model"
+	v1 "github.com/gxravel/bus-routes-visualizer/internal/service/http/v1"
 )
 
 // GetRoutesDetailed fetches detailed routes and saves them in database.
 func (r *Visualizer) GetRoutesDetailed(ctx context.Context, url string) ([]*v1.RouteDetailed, error) {
-	routes, err := busroutesapi.GetRoutesDetailed(ctx, r.config.API.BusRoutes, url)
+	routes, err := r.busroutes.GetRoutesDetailed(ctx, url)
 	if err != nil {
 		return nil, err
 	}
@@ -32,8 +31,8 @@ func (r *Visualizer) GetRoutesDetailed(ctx context.Context, url string) ([]*v1.R
 	return routes, nil
 }
 
-// DrawGraph returns path to the graph image.
-func (r *Visualizer) DrawGraph(ctx context.Context, routes []*v1.RouteDetailed) (int64, []byte, error) {
+// GetRoutesGraph returns size of graph and graph itself.
+func (r *Visualizer) GetRoutesGraph(ctx context.Context, routes []*v1.RouteDetailed) (int64, []byte, error) {
 	graphName := routes[0].City + "_" + routes[0].Bus
 
 	path, err := drawing.DrawRoutes(graphName, routes)

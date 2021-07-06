@@ -13,6 +13,7 @@ import (
 	"github.com/gxravel/bus-routes-visualizer/internal/dataprovider/mysql"
 	"github.com/gxravel/bus-routes-visualizer/internal/jwt"
 	log "github.com/gxravel/bus-routes-visualizer/internal/logger"
+	service "github.com/gxravel/bus-routes-visualizer/internal/service/http"
 	"github.com/gxravel/bus-routes-visualizer/internal/storage"
 	"github.com/gxravel/bus-routes-visualizer/internal/visualizer"
 
@@ -75,6 +76,7 @@ func main() {
 		mysql.NewRouteStore(db, txer),
 		mysql.NewRoutePointStore(db, txer),
 		jwt.New(storage, *cfg),
+		service.NewBusRoutesService(logger, cfg),
 	)
 
 	apiServer := handler.NewServer(
