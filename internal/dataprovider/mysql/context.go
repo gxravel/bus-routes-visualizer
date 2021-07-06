@@ -64,26 +64,26 @@ func toSql(ctx context.Context, qb interface{}, entity string) (string, []interf
 	)
 	switch qb := qb.(type) {
 	case sq.SelectBuilder:
-		codewords = "selecting "
+		codewords = "select "
 		query, args, err = qb.ToSql()
 	case sq.CaseBuilder:
-		codewords = "casing "
+		codewords = "case "
 		query, args, err = qb.ToSql()
 	case sq.InsertBuilder:
-		codewords = "inserting "
+		codewords = "insert "
 		query, args, err = qb.ToSql()
 	case sq.UpdateBuilder:
-		codewords = "updating "
+		codewords = "update "
 		query, args, err = qb.ToSql()
 	case sq.DeleteBuilder:
-		codewords = "deleting "
+		codewords = "delete "
 		query, args, err = qb.ToSql()
 	default:
 		err = errors.New("wrong query builder")
 	}
 	codewords += entity
 	if err != nil {
-		return "", nil, "", errors.Wrap(err, "creating sql query for "+codewords)
+		return "", nil, "", errors.Wrap(err, "create sql query for "+codewords)
 	}
 
 	logger.FromContext(ctx).WithFields(

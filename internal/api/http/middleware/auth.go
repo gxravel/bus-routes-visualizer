@@ -21,7 +21,7 @@ func Auth(visualizer *visualizer.Visualizer) func(http.Handler) http.Handler {
 
 			err := visualizer.VerifyToken(ctx, token)
 			if err != nil {
-				logger.FromContext(ctx).WithStr("token", token).Debug("verifying token")
+				logger.FromContext(ctx).WithStr("token", token).Debug("verify token")
 				api.RespondError(ctx, w, err)
 				return
 			}

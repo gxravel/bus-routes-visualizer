@@ -46,12 +46,12 @@ func main() {
 
 	db, err := database.NewClient(*cfg, log)
 	if err != nil {
-		log.WithErr(err).Fatal("constructing database")
+		log.WithErr(err).Fatal("construct database")
 	}
 
 	defer func() {
 		if err := db.Close(); err != nil {
-			log.WithErr(err).Error("closing database connection")
+			log.WithErr(err).Error("close database connection")
 		}
 	}()
 
@@ -61,7 +61,7 @@ func main() {
 
 	storage, err := storage.NewClient(*cfg)
 	if err != nil {
-		log.WithErr(err).Fatal("connecting to storage client")
+		log.WithErr(err).Fatal("connect to storage client")
 	}
 
 	txer := mysql.NewTxManager(db)
