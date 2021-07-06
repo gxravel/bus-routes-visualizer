@@ -19,7 +19,6 @@ func migrationInit(schema string) *migrator.Migration {
 					bus VARCHAR(255) NOT NULL,
 					UNIQUE (city, bus)
 				)`,
-
 				`CREATE TABLE IF NOT EXISTS route_point (
 					id BIGINT AUTO_INCREMENT PRIMARY KEY,
 					step TINYINT NOT NULL,
