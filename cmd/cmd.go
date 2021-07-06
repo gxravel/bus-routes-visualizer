@@ -65,19 +65,15 @@ func main() {
 	}
 
 	txer := mysql.NewTxManager(db)
-	routeStore := mysql.NewRouteStore(db, txer)
-	routePointStore := mysql.NewRoutePointStore(db, txer)
-
-	jwtManager := jwt.New(storage, *cfg)
 
 	visualizer := visualizer.New(
 		cfg,
 		db,
 		log,
 		txer,
-		routeStore,
-		routePointStore,
-		jwtManager,
+		mysql.NewRouteStore(db, txer),
+		mysql.NewRoutePointStore(db, txer),
+		jwt.New(storage, *cfg),
 	)
 
 	apiServer := handler.NewServer(
