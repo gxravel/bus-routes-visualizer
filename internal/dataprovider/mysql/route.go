@@ -152,9 +152,14 @@ func (s *RouteStore) Add(ctx context.Context, routes ...*model.Route) error {
 	return nil
 }
 
-// Update updates route's stop_id.
+// Update updates route's bus and city.
 func (s *RouteStore) Update(ctx context.Context, route *model.Route) error {
-	qb := sq.Update(s.tableName).Set("bus", route.Bus).Set("city", route.City).Where(sq.Eq{"id": route.ID})
+	qb := sq.Update(s.tableName).
+		SetMap(map[string]interface{}{
+			"bus":  route.Bus,
+			"city": route.City,
+		}).
+		Where(sq.Eq{"id": route.ID})
 
 	return execContext(ctx, qb, s.tableName, s.txer)
 }

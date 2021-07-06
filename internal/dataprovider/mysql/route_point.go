@@ -63,9 +63,14 @@ func (s *RoutePointStore) Add(ctx context.Context, points ...*model.RoutePoint) 
 	return nil
 }
 
-// Update updates route_point's stop_id.
+// Update updates route_point's step and address.
 func (s *RoutePointStore) Update(ctx context.Context, point *model.RoutePoint) error {
-	qb := sq.Update(s.tableName).Set("step", point.Step).Set("address", point.Address).Where(sq.Eq{"route_id": point.RouteID})
+	qb := sq.Update(s.tableName).
+		SetMap(map[string]interface{}{
+			"step":    point.Step,
+			"address": point.Address,
+		}).
+		Where(sq.Eq{"route_id": point.RouteID})
 
 	return execContext(ctx, qb, s.tableName, s.txer)
 }
