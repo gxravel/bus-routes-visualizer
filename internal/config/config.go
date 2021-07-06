@@ -15,11 +15,12 @@ type Config struct {
 	Environment     string        `mapstructure:"environment"`
 	ShutdownTimeout time.Duration `mapstructure:"shutdown_timeout"`
 
-	API     api     `mapstructure:"api"`
-	DB      db      `mapstructure:"db"`
-	Log     log     `mapstructure:"logger"`
-	JWT     jwt     `mapstructure:"jwt"`
-	Storage storage `mapstructure:"storage"`
+	API            api            `mapstructure:"api"`
+	DB             db             `mapstructure:"db"`
+	Log            log            `mapstructure:"logger"`
+	JWT            jwt            `mapstructure:"jwt"`
+	Storage        storage        `mapstructure:"storage"`
+	RemoteServices remoteServices `mapstructure:"remote_services"`
 }
 
 type api struct {
@@ -51,6 +52,12 @@ type storage struct {
 	RedisDSN string `mapstructure:"redis_dsn"`
 }
 
+type remoteServices struct {
+	DefaultTimeout  time.Duration `mapstructure:"default_timeout"`
+	DefaultMaxConns int           `mapstructure:"default_max_conns"`
+	SkipTLSVerify   bool          `mapstructure:"skip_tls_verify"`
+}
+
 var defaults = map[string]interface{}{
 	"environment":      "development",
 	"shutdown_timeout": time.Second * 5,
@@ -73,6 +80,10 @@ var defaults = map[string]interface{}{
 	"jwt.access_expiry": time.Minute * 15,
 
 	"storage.redis_dsn": "localhost:6378",
+
+	"remote_services.default_timeout":   time.Second * 30,
+	"remote_services.default_max_conns": 64,
+	"remote_services.skip_tls_verify":   false,
 }
 
 func New(dst string) (*Config, error) {
