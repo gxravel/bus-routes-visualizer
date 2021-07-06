@@ -28,12 +28,14 @@ func (r *Visualizer) GetRoutesDetailed(ctx context.Context, url string) ([]*v1.R
 	if err != nil && ierr.CheckDuplicate(err, "route") == nil {
 		return nil, err
 	}
+
 	return routes, nil
 }
 
 // DrawGraph returns path to the graph image.
 func (r *Visualizer) DrawGraph(ctx context.Context, routes []*v1.RouteDetailed) (int64, []byte, error) {
 	graphName := routes[0].City + "_" + routes[0].Bus
+
 	path, err := drawing.DrawRoutes(graphName, routes)
 	if err != nil {
 		return 0, nil, err
@@ -47,6 +49,7 @@ func (r *Visualizer) DrawGraph(ctx context.Context, routes []*v1.RouteDetailed) 
 	defer file.Close()
 
 	buf := &bytes.Buffer{}
+
 	size, err := io.Copy(buf, file)
 	if err != nil {
 		logger.FromContext(ctx).WithErr(err).Error("write to buffer")
@@ -58,6 +61,7 @@ func (r *Visualizer) DrawGraph(ctx context.Context, routes []*v1.RouteDetailed) 
 
 func toDBRoutes(routes []*v1.RouteDetailed) []*model.Route {
 	var dbRoutes = make([]*model.Route, 0, len(routes))
+
 	for i, r := range routes {
 		dbRoutes = append(dbRoutes, &model.Route{
 			Bus:    r.Bus,

@@ -29,30 +29,41 @@ const (
 // Returns path to the image.
 func DrawRoutes(name string, routes []*busroutesapi.RouteDetailed) (string, error) {
 	dc := gg.NewContext(defaultWidth, defaultHeight)
+
 	dc.SetRGB(0, 0, 0)
 	dc.Clear()
 	dc.SetColor(color.White)
+	dc.SetLineWidth(lineWidth)
+
 	err := dc.LoadFontFace(fontPath, fontSize)
 	if err != nil {
 		return "", err
 	}
-	dc.SetLineWidth(lineWidth)
+
 	var x, y, r float64 = xStart, yStart, rPoint
+
 	for _, route := range routes {
 		dc.DrawString(route.City+" "+route.Bus, 50, 50)
+
 		for j, point := range route.Points {
 			dc.DrawPoint(x, y, r)
 			dc.FillPreserve()
+
 			dc.DrawString(fmt.Sprintf("%d) %s", point.Step, point.Address), x+stringXOffset, y+stringYOffset)
+
 			x2 := x + xOffset
+
 			dc.LineTo(x2, y)
+
 			if j != len(route.Points)-1 {
 				dc.Stroke()
 			}
+
 			x = x2
 		}
 	}
 
 	path := filepath.Join(dataPath, name) + ".png"
+
 	return path, dc.SavePNG(path)
 }

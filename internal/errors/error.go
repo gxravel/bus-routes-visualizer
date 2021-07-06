@@ -24,12 +24,16 @@ func (r *Reason) Type() ReasonType { return r.RType }
 
 func (r *Reason) Error() string {
 	cause := r.Cause()
+
 	result := strings.Builder{}
 	result.Grow(len(r.Message) + len(cause.Error()))
+
 	if r.Message != "" {
 		result.WriteString(r.Message + ": ")
 	}
+
 	result.WriteString(cause.Error())
+
 	return result.String()
 }
 
@@ -51,8 +55,10 @@ func ConvertToReason(err error) *Reason {
 	switch val := err.(type) {
 	case *Reason:
 		return val
+
 	case TypedError:
 		return NewReason(val)
+
 	default:
 		typedError := NewTypedError(ReasonUnknownError, val)
 		return NewReason(typedError)
@@ -79,6 +85,7 @@ func (e *typedError) Error() string {
 	if cause == nil {
 		return ""
 	}
+
 	return cause.Error()
 }
 
@@ -99,6 +106,7 @@ func CheckDuplicate(err error, field string) error {
 	if strings.Contains(err.Error(), "Duplicate") {
 		return NewReason(ErrConflict).WithMessage("the " + field + " is already in use")
 	}
+
 	return nil
 }
 
