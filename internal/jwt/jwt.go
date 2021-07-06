@@ -37,7 +37,8 @@ func (m *JWT) parse(tokenString string) (string, error) {
 
 	jwtToken, err := jwt.ParseWithClaims(tokenString, &claims, func(t *jwt.Token) (interface{}, error) {
 		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, ierr.NewReason(ierr.ErrInvalidJWT).WithMessage(fmt.Sprintf("unexpected signing method: %v", t.Header["alg"]))
+			return nil, ierr.NewReason(ierr.ErrInvalidJWT).
+				WithMessage(fmt.Sprintf("unexpected signing method: %v", t.Header["alg"]))
 		}
 
 		return key, nil

@@ -7,7 +7,7 @@ import (
 	"github.com/gxravel/bus-routes-visualizer/assets"
 	mw "github.com/gxravel/bus-routes-visualizer/internal/api/http/middleware"
 	"github.com/gxravel/bus-routes-visualizer/internal/config"
-	"github.com/gxravel/bus-routes-visualizer/internal/logger"
+	log "github.com/gxravel/bus-routes-visualizer/internal/logger"
 	"github.com/gxravel/bus-routes-visualizer/internal/visualizer"
 
 	"github.com/go-chi/chi"
@@ -15,7 +15,7 @@ import (
 
 type Server struct {
 	*http.Server
-	logger       logger.Logger
+	logger       log.Logger
 	visualizer   *visualizer.Visualizer
 	busroutesAPI string
 }
@@ -23,7 +23,7 @@ type Server struct {
 func NewServer(
 	cfg *config.Config,
 	visualizer *visualizer.Visualizer,
-	logger logger.Logger,
+	logger log.Logger,
 ) *Server {
 	srv := &Server{
 		Server: &http.Server{

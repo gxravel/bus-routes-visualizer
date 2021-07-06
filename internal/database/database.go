@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/gxravel/bus-routes-visualizer/internal/config"
-	"github.com/gxravel/bus-routes-visualizer/internal/logger"
+	log "github.com/gxravel/bus-routes-visualizer/internal/logger"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/pkg/errors"
@@ -12,12 +12,12 @@ import (
 
 type Client struct {
 	*sqlx.DB
-	log logger.Logger
+	logger log.Logger
 
 	schemaName string
 }
 
-func NewClient(cfg config.Config, logger logger.Logger) (*Client, error) {
+func NewClient(cfg config.Config, logger log.Logger) (*Client, error) {
 	db, err := sqlx.Open("mysql", cfg.DB.URL+"/"+cfg.DB.SchemaName)
 	if err != nil {
 		return nil, err

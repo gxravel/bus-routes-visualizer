@@ -7,7 +7,7 @@ import (
 	"strconv"
 
 	ierr "github.com/gxravel/bus-routes-visualizer/internal/errors"
-	"github.com/gxravel/bus-routes-visualizer/internal/logger"
+	log "github.com/gxravel/bus-routes-visualizer/internal/logger"
 )
 
 type MIME string
@@ -46,7 +46,10 @@ func RespondJSON(ctx context.Context, w http.ResponseWriter, code int, data inte
 	w.WriteHeader(code)
 
 	if err := json.NewEncoder(w).Encode(&data); err != nil {
-		logger.FromContext(ctx).WithErr(err).Error("encode data to respond with json")
+		log.
+			FromContext(ctx).
+			WithErr(err).
+			Error("encode data to respond with json")
 	}
 }
 
@@ -57,7 +60,10 @@ func RespondBytes(ctx context.Context, w http.ResponseWriter, code int, mime MIM
 	w.WriteHeader(code)
 
 	if _, err := w.Write(data); err != nil {
-		logger.FromContext(ctx).WithErr(err).Error("write data")
+		log.
+			FromContext(ctx).
+			WithErr(err).
+			Error("write data")
 	}
 }
 

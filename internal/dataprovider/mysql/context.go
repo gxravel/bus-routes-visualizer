@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/gxravel/bus-routes-visualizer/internal/dataprovider"
-	"github.com/gxravel/bus-routes-visualizer/internal/logger"
+	log "github.com/gxravel/bus-routes-visualizer/internal/logger"
 	"github.com/gxravel/bus-routes-visualizer/internal/model"
 
 	sq "github.com/Masterminds/squirrel"
@@ -93,9 +93,11 @@ func toSql(ctx context.Context, qb interface{}, entity string) (string, []interf
 		return "", nil, "", errors.Wrap(err, "create sql query for "+codewords)
 	}
 
-	logger.FromContext(ctx).WithFields(
-		"query", query,
-		"args", args).
+	log.
+		FromContext(ctx).
+		WithFields(
+			"query", query,
+			"args", args).
 		Debug(codewords)
 
 	return query, args, codewords, nil
