@@ -25,3 +25,8 @@ config:
 
   storage:
     redis_dsn: localhost:6378
+
+  remote_services:
+    default_timeout: 30s
+    default_max_conns: 64
+    skip_tls_verify: true

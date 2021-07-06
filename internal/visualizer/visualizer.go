@@ -6,6 +6,7 @@ import (
 	"github.com/gxravel/bus-routes-visualizer/internal/dataprovider"
 	"github.com/gxravel/bus-routes-visualizer/internal/jwt"
 	log "github.com/gxravel/bus-routes-visualizer/internal/logger"
+	"github.com/gxravel/bus-routes-visualizer/internal/service"
 )
 
 type Visualizer struct {
@@ -16,6 +17,7 @@ type Visualizer struct {
 	routeStore      dataprovider.RouteStore
 	routePointStore dataprovider.RoutePointStore
 	tokenManager    jwt.Manager
+	busroutes       service.BusRoutes
 }
 
 func New(
@@ -26,6 +28,7 @@ func New(
 	routeStore dataprovider.RouteStore,
 	routePointStore dataprovider.RoutePointStore,
 	jwtManager jwt.Manager,
+	busroutes service.BusRoutes,
 ) *Visualizer {
 	return &Visualizer{
 		config:          config,
@@ -35,5 +38,6 @@ func New(
 		tokenManager:    jwtManager,
 		routeStore:      routeStore,
 		routePointStore: routePointStore,
+		busroutes:       busroutes,
 	}
 }
