@@ -26,11 +26,11 @@ func (s *Server) getGraph(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	path, err := s.visualizer.DrawGraph(routes)
+	size, image, err := s.visualizer.DrawGraph(ctx, routes)
 	if err != nil {
 		api.RespondError(ctx, w, err)
 		return
 	}
 
-	api.RespondPNG(ctx, w, path)
+	api.RespondImageOK(ctx, w, size, image)
 }

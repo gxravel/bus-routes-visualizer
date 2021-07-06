@@ -3,20 +3,25 @@ package api
 import (
 	"context"
 	"encoding/json"
-	"io"
 	"net/http"
-	"os"
 	"strconv"
 
 	ierr "github.com/gxravel/bus-routes-visualizer/internal/errors"
 	"github.com/gxravel/bus-routes-visualizer/internal/logger"
 )
 
+type MIME string
+
+func (m MIME) String() string { return string(m) }
+
+const (
+	MIMEImagePNG        MIME = "image/png"
+	MIMEApplicationJSON MIME = "application/json"
+)
+
 const (
 	headerContentType   = "Content-Type"
 	headerContentLength = "Content-Length"
-	mimeApplicationJSON = "application/json"
-	mimeImagePNG        = "image/png"
 )
 
 type RangeItemsResponse struct {
@@ -36,36 +41,28 @@ func RespondJSON(ctx context.Context, w http.ResponseWriter, code int, data inte
 		return
 	}
 
-	w.Header().Set(headerContentType, mimeApplicationJSON)
+	w.Header().Set(headerContentType, MIMEApplicationJSON.String())
+
 	w.WriteHeader(code)
 
 	if err := json.NewEncoder(w).Encode(&data); err != nil {
-		logger.FromContext(ctx).WithErr(err).Error("encoding data to respond with json")
+		logger.FromContext(ctx).WithErr(err).Error("encode data to respond with json")
 	}
 }
 
-func RespondPNG(ctx context.Context, w http.ResponseWriter, path string) {
-	file, err := os.Open(path)
-	if err != nil {
-		logger.FromContext(ctx).WithErr(err).Error("unable to open file")
-		return
-	}
-	defer file.Close()
+func RespondBytes(ctx context.Context, w http.ResponseWriter, code int, mime MIME, size int64, data []byte) {
+	w.Header().Set(headerContentType, mime.String())
+	w.Header().Set(headerContentLength, strconv.FormatInt(size, 10))
 
-	fi, err := file.Stat()
-	if err != nil {
-		logger.FromContext(ctx).WithErr(err).Error("unable to read file info")
-		return
-	}
+	w.WriteHeader(code)
 
-	w.Header().Set(headerContentType, mimeImagePNG)
-	w.Header().Set(headerContentLength, strconv.FormatInt(fi.Size(), 10))
-
-	_, err = io.Copy(w, file)
-	if err != nil {
-		logger.FromContext(ctx).WithErr(err).Error("unable to open file")
-		return
+	if _, err := w.Write(data); err != nil {
+		logger.FromContext(ctx).WithErr(err).Error("write data")
 	}
+}
+
+func RespondImageOK(ctx context.Context, w http.ResponseWriter, size int64, data []byte) {
+	RespondBytes(ctx, w, http.StatusAccepted, MIMEImagePNG, size, data)
 }
 
 func RespondEmpty(w http.ResponseWriter) {
