@@ -48,6 +48,7 @@ func selectContext(ctx context.Context, qb sq.SelectBuilder, entity string, db s
 	msg := fmt.Sprintf(codewords+" by filter with query %s", query)
 
 	var result = make([]*model.RouteJoined, 0)
+
 	if err := sqlx.SelectContext(ctx, db, &result, query, args...); err != nil {
 		return nil, errors.Wrapf(err, msg)
 	}
@@ -66,21 +67,27 @@ func toSql(ctx context.Context, qb interface{}, entity string) (string, []interf
 	case sq.SelectBuilder:
 		codewords = "select "
 		query, args, err = qb.ToSql()
+
 	case sq.CaseBuilder:
 		codewords = "case "
 		query, args, err = qb.ToSql()
+
 	case sq.InsertBuilder:
 		codewords = "insert "
 		query, args, err = qb.ToSql()
+
 	case sq.UpdateBuilder:
 		codewords = "update "
 		query, args, err = qb.ToSql()
+
 	case sq.DeleteBuilder:
 		codewords = "delete "
 		query, args, err = qb.ToSql()
+
 	default:
 		err = errors.New("wrong query builder")
 	}
+
 	codewords += entity
 	if err != nil {
 		return "", nil, "", errors.Wrap(err, "create sql query for "+codewords)

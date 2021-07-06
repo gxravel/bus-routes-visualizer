@@ -109,8 +109,10 @@ func (s *RouteStore) GetListByFilter(ctx context.Context, filter *dataprovider.R
 // Add creates new routes.
 func (s *RouteStore) Add(ctx context.Context, routes ...*model.Route) error {
 	qb := sq.Insert(s.tableName).Columns(s.columns(nil)...)
+
 	for _, route := range routes {
 		values := qb.Values(route.Bus, route.City)
+
 		query, args, codewords, err := toSql(ctx, values, "route")
 		if err != nil {
 			return err
@@ -121,15 +123,18 @@ func (s *RouteStore) Add(ctx context.Context, routes ...*model.Route) error {
 			if err != nil {
 				return errors.Wrapf(err, codewords+" with query %s", query)
 			}
+
 			lastID, err := result.LastInsertId()
 			if err != nil {
 				return errors.Wrap(err, "failed to call LastInsertId")
 			}
+
 			for i := range route.Points {
 				route.Points[i].RouteID = lastID
 			}
 
 			pointStore := NewRoutePointStore(s.db, s.txer)
+
 			err = pointStore.WithTx(tx).Add(ctx, route.Points...)
 			if err != nil {
 				return err
@@ -137,22 +142,26 @@ func (s *RouteStore) Add(ctx context.Context, routes ...*model.Route) error {
 
 			return nil
 		}
+
 		err = dataprovider.BeginAutoCommitedTx(ctx, s.txer, f)
 		if err != nil {
 			return err
 		}
 	}
+
 	return nil
 }
 
 // Update updates route's stop_id.
 func (s *RouteStore) Update(ctx context.Context, route *model.Route) error {
 	qb := sq.Update(s.tableName).Set("bus", route.Bus).Set("city", route.City).Where(sq.Eq{"id": route.ID})
+
 	return execContext(ctx, qb, s.tableName, s.txer)
 }
 
 // Delete deletes route depend on received filter.
 func (s *RouteStore) Delete(ctx context.Context, filter *dataprovider.RouteFilter) error {
 	qb := sq.Delete(s.tableName).Where(routeCond(filter))
+
 	return execContext(ctx, qb, s.tableName, s.txer)
 }

@@ -22,6 +22,7 @@ func Auth(visualizer *visualizer.Visualizer) func(http.Handler) http.Handler {
 			err := visualizer.VerifyToken(ctx, token)
 			if err != nil {
 				logger.FromContext(ctx).WithStr("token", token).Debug("verify token")
+
 				api.RespondError(ctx, w, err)
 				return
 			}
@@ -29,6 +30,7 @@ func Auth(visualizer *visualizer.Visualizer) func(http.Handler) http.Handler {
 			ctx = context.WithValue(ctx, visualizercontext.TokenKey, token)
 
 			r = r.WithContext(ctx)
+
 			next.ServeHTTP(w, r)
 		})
 	}
@@ -42,7 +44,7 @@ const (
 func getAuthToken(r *http.Request) string {
 	tokens, ok := r.Header[AuthHeader]
 	if ok {
-		if len(tokens) == 1 {
+		if len(tokens) > 0 {
 			return strings.TrimPrefix(tokens[0], "Bearer ")
 		}
 	}

@@ -46,6 +46,7 @@ func (s *RoutePointStore) columns() []string {
 // Add creates new routes.
 func (s *RoutePointStore) Add(ctx context.Context, points ...*model.RoutePoint) error {
 	qb := sq.Insert(s.tableName).Columns(s.columns()...)
+
 	for _, point := range points {
 		qb = qb.Values(point.RouteID, point.Step, point.Address)
 	}
@@ -65,11 +66,13 @@ func (s *RoutePointStore) Add(ctx context.Context, points ...*model.RoutePoint) 
 // Update updates route_point's stop_id.
 func (s *RoutePointStore) Update(ctx context.Context, point *model.RoutePoint) error {
 	qb := sq.Update(s.tableName).Set("step", point.Step).Set("address", point.Address).Where(sq.Eq{"route_id": point.RouteID})
+
 	return execContext(ctx, qb, s.tableName, s.txer)
 }
 
 // Delete deletes route_point depend on received filter.
 func (s *RoutePointStore) Delete(ctx context.Context, id int64) error {
 	qb := sq.Delete(s.tableName).Where(sq.Eq{"id": id})
+
 	return execContext(ctx, qb, s.tableName, s.txer)
 }

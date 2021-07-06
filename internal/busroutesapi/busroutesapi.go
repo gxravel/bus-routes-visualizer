@@ -123,10 +123,7 @@ func getItems(ctx context.Context, url string, setToken bool, itemsType ItemsTyp
 }
 
 func processResponse(r *http.Response, data interface{}) error {
-	if err := json.NewDecoder(r.Body).Decode(data); err != nil {
-		return err
-	}
-	return nil
+	return json.NewDecoder(r.Body).Decode(data)
 }
 
 func setAuthToken(ctx context.Context, r *http.Request) {

@@ -34,12 +34,15 @@ func (m *JWT) parse(tokenString string) (string, error) {
 	var key = []byte(m.config.JWT.AccessKey)
 
 	claims := jwt.MapClaims{}
+
 	jwtToken, err := jwt.ParseWithClaims(tokenString, &claims, func(t *jwt.Token) (interface{}, error) {
 		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, ierr.NewReason(ierr.ErrInvalidJWT).WithMessage(fmt.Sprintf("unexpected signing method: %v", t.Header["alg"]))
 		}
+
 		return key, nil
 	})
+
 	if err != nil || !jwtToken.Valid {
 		return "", ierr.NewReason(ierr.ErrInvalidToken).WithMessage("token validation failed")
 	}
@@ -48,6 +51,7 @@ func (m *JWT) parse(tokenString string) (string, error) {
 	if !ok {
 		return "", ierr.NewReason(ierr.ErrInvalidToken).WithMessage("failed to get claims id")
 	}
+
 	return tokenUUID, nil
 }
 
@@ -62,6 +66,7 @@ func (m *JWT) Verify(ctx context.Context, tokenString string) error {
 	if err != nil {
 		return err
 	}
+
 	if err := m.checkIfExist(ctx, tokenUUID); err != nil {
 		return ierr.NewReason(ierr.ErrTokenExpired)
 	}

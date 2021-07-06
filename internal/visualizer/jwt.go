@@ -12,6 +12,5 @@ func (r *Visualizer) VerifyToken(ctx context.Context, token string) error {
 		return err
 	}
 
-	err := r.tokenManager.Verify(ctx, token)
-	return err
+	return r.tokenManager.Verify(ctx, token)
 }

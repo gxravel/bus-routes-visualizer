@@ -18,7 +18,9 @@ func NewClient(cfg config.Config) (*Client, error) {
 	cli := redis.NewClient(&redis.Options{
 		Addr: cfg.Storage.RedisDSN,
 	})
+
 	ctx := context.Background()
+
 	_, err := cli.Ping(ctx).Result()
 	if err != nil {
 		return nil, err
