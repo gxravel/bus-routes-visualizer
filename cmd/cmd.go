@@ -12,7 +12,7 @@ import (
 	"github.com/gxravel/bus-routes-visualizer/internal/database"
 	"github.com/gxravel/bus-routes-visualizer/internal/dataprovider/mysql"
 	"github.com/gxravel/bus-routes-visualizer/internal/jwt"
-	"github.com/gxravel/bus-routes-visualizer/internal/logger"
+	log "github.com/gxravel/bus-routes-visualizer/internal/logger"
 	"github.com/gxravel/bus-routes-visualizer/internal/storage"
 	"github.com/gxravel/bus-routes-visualizer/internal/visualizer"
 
@@ -20,7 +20,7 @@ import (
 )
 
 func main() {
-	defaultLog := logger.Default()
+	defaultLogger := log.Default()
 
 	var configPath = flag.String("config", "./config.example.json", "path to configuration file")
 
@@ -28,40 +28,41 @@ func main() {
 
 	cfg, err := config.New(*configPath)
 	if err != nil {
-		defaultLog.WithErr(err).Fatal("can't create config")
+		defaultLogger.WithErr(err).Fatal("can't create config")
 	}
 
-	log, err := logger.New(
+	logger, err := log.New(
 		cfg.Log.Level,
-		logger.DefaultOutput)
+		log.DefaultOutput,
+	)
 	if err != nil {
-		defaultLog.WithErr(err).Error("can not init log with specified params, defaults are used")
-		log = defaultLog
+		defaultLogger.WithErr(err).Error("can not init logger with specified params, defaults are used")
+		logger = defaultLogger
 	}
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	logger.CtxWithLogger(ctx, log)
+	log.CtxWithLogger(ctx, logger)
 
-	db, err := database.NewClient(*cfg, log)
+	db, err := database.NewClient(*cfg, logger)
 	if err != nil {
-		log.WithErr(err).Fatal("construct database")
+		logger.WithErr(err).Fatal("construct database")
 	}
 
 	defer func() {
 		if err := db.Close(); err != nil {
-			log.WithErr(err).Error("close database connection")
+			logger.WithErr(err).Error("close database connection")
 		}
 	}()
 
 	if err := db.Migrate(); err != nil {
-		log.WithErr(err).Fatal("can't migrate the db")
+		logger.WithErr(err).Fatal("can't migrate the db")
 	}
 
 	storage, err := storage.NewClient(*cfg)
 	if err != nil {
-		log.WithErr(err).Fatal("connect to storage client")
+		logger.WithErr(err).Fatal("connect to storage client")
 	}
 
 	txer := mysql.NewTxManager(db)
@@ -69,7 +70,7 @@ func main() {
 	visualizer := visualizer.New(
 		cfg,
 		db,
-		log,
+		logger,
 		txer,
 		mysql.NewRouteStore(db, txer),
 		mysql.NewRoutePointStore(db, txer),
@@ -79,7 +80,7 @@ func main() {
 	apiServer := handler.NewServer(
 		cfg,
 		visualizer,
-		log,
+		logger,
 	)
 
 	var (
@@ -93,27 +94,27 @@ func main() {
 		serverErrors <- apiServer.ListenAndServe()
 	}()
 
-	log.Info("started")
+	logger.Info("started")
 
-	defer log.Info("stopped")
+	defer logger.Info("stopped")
 
 	select {
 	case err = <-serverErrors:
-		log.WithErr(err).Error("api server stopped")
+		logger.WithErr(err).Error("api server stopped")
 
 	case sig := <-shutdown:
-		log.WithField("signal", sig.String()).Info("gracefully shutdown application")
+		logger.WithField("signal", sig.String()).Info("gracefully shutdown application")
 
 		ctx, cancel := context.WithTimeout(context.Background(), cfg.ShutdownTimeout)
 		defer cancel()
 
 		if err = apiServer.Shutdown(ctx); err != nil {
-			log.WithErr(err).Error("api server shutdown error")
+			logger.WithErr(err).Error("api server shutdown error")
 			err = apiServer.Close()
 		}
 
 		if err != nil {
-			log.WithErr(err).Error("could not stopped api server gracefully")
+			logger.WithErr(err).Error("could not stopped api server gracefully")
 		}
 	}
 

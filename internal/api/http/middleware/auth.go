@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	api "github.com/gxravel/bus-routes-visualizer/internal/api/http"
-	"github.com/gxravel/bus-routes-visualizer/internal/logger"
+	log "github.com/gxravel/bus-routes-visualizer/internal/logger"
 	"github.com/gxravel/bus-routes-visualizer/internal/visualizer"
 	"github.com/gxravel/bus-routes-visualizer/internal/visualizercontext"
 )
@@ -21,7 +21,10 @@ func Auth(visualizer *visualizer.Visualizer) func(http.Handler) http.Handler {
 
 			err := visualizer.VerifyToken(ctx, token)
 			if err != nil {
-				logger.FromContext(ctx).WithStr("token", token).Debug("verify token")
+				log.
+					FromContext(ctx).
+					WithStr("token", token).
+					Debug("verify token")
 
 				api.RespondError(ctx, w, err)
 				return

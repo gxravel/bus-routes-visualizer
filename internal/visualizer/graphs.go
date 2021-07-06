@@ -10,7 +10,7 @@ import (
 	v1 "github.com/gxravel/bus-routes-visualizer/internal/busroutesapi/v1"
 	"github.com/gxravel/bus-routes-visualizer/internal/drawing"
 	ierr "github.com/gxravel/bus-routes-visualizer/internal/errors"
-	"github.com/gxravel/bus-routes-visualizer/internal/logger"
+	log "github.com/gxravel/bus-routes-visualizer/internal/logger"
 	"github.com/gxravel/bus-routes-visualizer/internal/model"
 )
 
@@ -43,7 +43,10 @@ func (r *Visualizer) DrawGraph(ctx context.Context, routes []*v1.RouteDetailed) 
 
 	file, err := os.Open(path)
 	if err != nil {
-		logger.FromContext(ctx).WithErr(err).Error("open file")
+		log.
+			FromContext(ctx).
+			WithErr(err).
+			Error("open file")
 		return 0, nil, err
 	}
 	defer file.Close()
@@ -52,7 +55,10 @@ func (r *Visualizer) DrawGraph(ctx context.Context, routes []*v1.RouteDetailed) 
 
 	size, err := io.Copy(buf, file)
 	if err != nil {
-		logger.FromContext(ctx).WithErr(err).Error("write to buffer")
+		log.
+			FromContext(ctx).
+			WithErr(err).
+			Error("write to buffer")
 		return 0, nil, err
 	}
 
