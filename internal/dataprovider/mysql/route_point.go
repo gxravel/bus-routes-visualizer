@@ -35,6 +35,17 @@ func (s *RoutePointStore) WithTx(tx *dataprovider.Tx) dataprovider.RoutePointSto
 	}
 }
 
+func routePointCond(f *dataprovider.RoutePointFilter) sq.Sqlizer {
+	eq := make(sq.Eq)
+	var cond sq.Sqlizer = eq
+
+	if len(f.IDs) > 0 {
+		eq["route_point.id"] = f.IDs
+	}
+
+	return cond
+}
+
 func (s *RoutePointStore) columns() []string {
 	return []string{
 		"route_id",
@@ -76,8 +87,8 @@ func (s *RoutePointStore) Update(ctx context.Context, point *model.RoutePoint) e
 }
 
 // Delete deletes route_point depend on received filter.
-func (s *RoutePointStore) Delete(ctx context.Context, id int64) error {
-	qb := sq.Delete(s.tableName).Where(sq.Eq{"id": id})
+func (s *RoutePointStore) Delete(ctx context.Context, filter *dataprovider.RoutePointFilter) error {
+	qb := sq.Delete(s.tableName).Where(routePointCond(filter))
 
 	return execContext(ctx, qb, s.tableName, s.txer)
 }
