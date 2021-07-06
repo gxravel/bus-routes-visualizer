@@ -21,7 +21,7 @@ func NewRoutePointFilter() *RoutePointFilter {
 	return &RoutePointFilter{}
 }
 
-// ByIDs filters by route_point.id
+// ByIDs filters by route_point.id.
 func (f *RoutePointFilter) ByIDs(ids ...int64) *RoutePointFilter {
 	f.IDs = ids
 	return f

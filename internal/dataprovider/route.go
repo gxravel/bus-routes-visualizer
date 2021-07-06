@@ -25,16 +25,19 @@ func NewRouteFilter() *RouteFilter {
 	return &RouteFilter{}
 }
 
+// ByBuses filters by route.bus.
 func (f *RouteFilter) ByBuses(buses ...string) *RouteFilter {
 	f.Buses = buses
 	return f
 }
 
+// ByCities filters by route.city.
 func (f *RouteFilter) ByCities(cities ...string) *RouteFilter {
 	f.Cities = cities
 	return f
 }
 
+// ByAddress filters by route.address.
 func (f *RouteFilter) ByAddresses(addresses ...string) *RouteFilter {
 	f.Addresses = addresses
 	return f
