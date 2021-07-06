@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"strings"
 
-	api "github.com/gxravel/bus-routes-visualizer/internal/api/http"
+	httpv1 "github.com/gxravel/bus-routes-visualizer/internal/api/http/handler/v1"
 	"github.com/gxravel/bus-routes-visualizer/internal/busroutesapi/v1"
 	ierr "github.com/gxravel/bus-routes-visualizer/internal/errors"
 	log "github.com/gxravel/bus-routes-visualizer/internal/logger"
@@ -94,7 +94,7 @@ func getItems(ctx context.Context, url string, setToken bool, itemsType ItemsTyp
 		return nil, err
 	}
 
-	var itemsResponse = &api.Response{}
+	var itemsResponse = &httpv1.Response{}
 
 	switch itemsType {
 	case TypeBuses:
@@ -102,7 +102,7 @@ func getItems(ctx context.Context, url string, setToken bool, itemsType ItemsTyp
 	case TypeRoutes:
 		itemsResponse.Data = &busroutesapi.RangeRoutesResponse{}
 	default:
-		itemsResponse.Data = &api.RangeItemsResponse{}
+		itemsResponse.Data = &httpv1.RangeItemsResponse{}
 	}
 
 	if err := processResponse(response, itemsResponse); err != nil {

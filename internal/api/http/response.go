@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strconv"
 
+	httpv1 "github.com/gxravel/bus-routes-visualizer/internal/api/http/handler/v1"
 	ierr "github.com/gxravel/bus-routes-visualizer/internal/errors"
 	log "github.com/gxravel/bus-routes-visualizer/internal/logger"
 )
@@ -23,17 +24,6 @@ const (
 	headerContentType   = "Content-Type"
 	headerContentLength = "Content-Length"
 )
-
-type RangeItemsResponse struct {
-	Items interface{} `json:"items"`
-	Total int64       `json:"total"`
-}
-
-// Response describes http response for api v1.
-type Response struct {
-	Data  interface{}    `json:"data,omitempty"`
-	Error *ierr.APIError `json:"error,omitempty"`
-}
 
 func RespondJSON(ctx context.Context, w http.ResponseWriter, code int, data interface{}) {
 	if data == nil {
@@ -90,12 +80,12 @@ func RespondDataOK(ctx context.Context, w http.ResponseWriter, val interface{}) 
 
 // RespondEmptyItems responds with empty items and 200 status code.
 func RespondEmptyItems(ctx context.Context, w http.ResponseWriter) {
-	RespondData(ctx, w, http.StatusOK, RangeItemsResponse{})
+	RespondData(ctx, w, http.StatusOK, httpv1.RangeItemsResponse{})
 }
 
 // RespondData responds with custom status code and JSON in format: {"data": <val>}.
 func RespondData(ctx context.Context, w http.ResponseWriter, code int, val interface{}) {
-	RespondJSON(ctx, w, code, &Response{
+	RespondJSON(ctx, w, code, &httpv1.Response{
 		Data: val,
 	})
 }
@@ -105,7 +95,7 @@ func RespondError(ctx context.Context, w http.ResponseWriter, err error) {
 	reason := ierr.ConvertToReason(err)
 	code := ierr.ResolveStatusCode(ierr.Cause(reason.Err))
 
-	RespondJSON(ctx, w, code, &Response{
+	RespondJSON(ctx, w, code, &httpv1.Response{
 		Error: &ierr.APIError{
 			Reason: &ierr.APIReason{
 				RType:   reason.RType,
