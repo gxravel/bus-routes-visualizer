@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"encoding/json"
 	"net/http"
 
 	"github.com/gxravel/bus-routes-visualizer/assets"
@@ -52,6 +53,7 @@ func NewServer(
 		r.Route("/v1", func(r chi.Router) {
 			r.Route("/graphs", func(r chi.Router) {
 				r.Use(mw.Auth(visualizer))
+
 				r.Get("/", srv.getGraph)
 			})
 		})
@@ -71,10 +73,11 @@ func registerSwagger(r *chi.Mux) {
 	r.Get("/internal/swagger/*", swaggerHandler.ServeHTTP)
 }
 
-// func (s *Server) processRequest(r *http.Request, data interface{}) error {
-// 	if err := json.NewDecoder(r.Body).Decode(data); err != nil {
-// 		s.logger.WithErr(err).Error("decoding data")
-// 		return err
-// 	}
-// 	return nil
-// }
+// nolint
+func (s *Server) processRequest(r *http.Request, data interface{}) error {
+	if err := json.NewDecoder(r.Body).Decode(data); err != nil {
+		s.logger.WithErr(err).Error("decode data")
+		return err
+	}
+	return nil
+}
