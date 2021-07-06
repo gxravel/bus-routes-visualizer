@@ -106,7 +106,7 @@ func (s *RouteStore) GetListByFilter(ctx context.Context, filter *dataprovider.R
 	return selectContext(ctx, qb, s.tableName, s.db)
 }
 
-// Add creates new routes.
+// Add creates new routes and according route_points.
 func (s *RouteStore) Add(ctx context.Context, routes ...*model.Route) error {
 	qb := sq.Insert(s.tableName).Columns(s.columns(nil)...)
 
@@ -135,16 +135,14 @@ func (s *RouteStore) Add(ctx context.Context, routes ...*model.Route) error {
 
 			pointStore := NewRoutePointStore(s.db, s.txer)
 
-			err = pointStore.WithTx(tx).Add(ctx, route.Points...)
-			if err != nil {
+			if err = pointStore.WithTx(tx).Add(ctx, route.Points...); err != nil {
 				return err
 			}
 
 			return nil
 		}
 
-		err = dataprovider.BeginAutoCommitedTx(ctx, s.txer, f)
-		if err != nil {
+		if err = dataprovider.BeginAutoCommitedTx(ctx, s.txer, f); err != nil {
 			return err
 		}
 	}
@@ -161,12 +159,12 @@ func (s *RouteStore) Update(ctx context.Context, route *model.Route) error {
 		}).
 		Where(sq.Eq{"id": route.ID})
 
-	return execContext(ctx, qb, s.tableName, s.txer)
+	return execContext(ctx, qb, s.tableName, s.db)
 }
 
 // Delete deletes route depend on received filter.
 func (s *RouteStore) Delete(ctx context.Context, filter *dataprovider.RouteFilter) error {
 	qb := sq.Delete(s.tableName).Where(routeCond(filter))
 
-	return execContext(ctx, qb, s.tableName, s.txer)
+	return execContext(ctx, qb, s.tableName, s.db)
 }

@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/gxravel/bus-routes-visualizer/internal/dataprovider"
 	log "github.com/gxravel/bus-routes-visualizer/internal/logger"
 	"github.com/gxravel/bus-routes-visualizer/internal/model"
 
@@ -14,31 +13,30 @@ import (
 )
 
 // execContext builds the query that doesn't return rows and executes it.
-func execContext(ctx context.Context, qb interface{}, entity string, txer dataprovider.Txer) error {
+func execContext(ctx context.Context, qb interface{}, entity string, db sqlx.ExtContext) error {
 	query, args, codewords, err := toSql(ctx, qb, entity)
 	if err != nil {
 		return err
 	}
 
-	f := func(tx *dataprovider.Tx) error {
-		result, err := tx.ExecContext(ctx, query, args...)
-		if err != nil {
-			return errors.Wrapf(err, codewords+" with query %s", query)
-		}
-		num, err := result.RowsAffected()
-		if err != nil {
-			return errors.Wrap(err, "failed to call RowsAffected")
-		}
-		if num == 0 {
-			return errors.New("no rows affected")
-		}
-		return nil
+	result, err := db.ExecContext(ctx, query, args...)
+	if err != nil {
+		return errors.Wrapf(err, codewords+" with query %s", query)
 	}
 
-	return dataprovider.BeginAutoCommitedTx(ctx, txer, f)
+	num, err := result.RowsAffected()
+	if err != nil {
+		return errors.Wrap(err, "failed to call RowsAffected")
+	}
+
+	if num == 0 {
+		return errors.New("no rows affected")
+	}
+
+	return nil
 }
 
-// selectContext executes a query depend on ResultType
+// selectContext executes a query and return RouteJoined
 func selectContext(ctx context.Context, qb sq.SelectBuilder, entity string, db sqlx.ExtContext) ([]*model.RouteJoined, error) {
 	query, args, codewords, err := toSql(ctx, qb, entity)
 	if err != nil {

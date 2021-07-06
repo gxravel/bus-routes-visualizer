@@ -8,7 +8,6 @@ import (
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/jmoiron/sqlx"
-	"github.com/pkg/errors"
 )
 
 // RoutePointStore is route_point mysql store.
@@ -62,16 +61,7 @@ func (s *RoutePointStore) Add(ctx context.Context, points ...*model.RoutePoint) 
 		qb = qb.Values(point.RouteID, point.Step, point.Address)
 	}
 
-	query, args, codewords, err := toSql(ctx, qb, s.tableName)
-	if err != nil {
-		return err
-	}
-
-	_, err = s.db.ExecContext(ctx, query, args...)
-	if err != nil {
-		return errors.Wrapf(err, codewords+" with query %s", query)
-	}
-	return nil
+	return execContext(ctx, qb, s.tableName, s.db)
 }
 
 // Update updates route_point's step and address.
@@ -83,12 +73,12 @@ func (s *RoutePointStore) Update(ctx context.Context, point *model.RoutePoint) e
 		}).
 		Where(sq.Eq{"route_id": point.RouteID})
 
-	return execContext(ctx, qb, s.tableName, s.txer)
+	return execContext(ctx, qb, s.tableName, s.db)
 }
 
 // Delete deletes route_point depend on received filter.
 func (s *RoutePointStore) Delete(ctx context.Context, filter *dataprovider.RoutePointFilter) error {
 	qb := sq.Delete(s.tableName).Where(routePointCond(filter))
 
-	return execContext(ctx, qb, s.tableName, s.txer)
+	return execContext(ctx, qb, s.tableName, s.db)
 }
