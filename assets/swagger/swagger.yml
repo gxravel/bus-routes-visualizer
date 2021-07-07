@@ -47,6 +47,13 @@ paths:
       summary: Получение прав пользователей на определенные действия
       tags:
         - permissions
+      security:
+        - authorization_header: []
+      description: |
+        Для пользователей с типом:
+        `admin`
+        `service`
+        Требуется подписка.
       parameters:
         - name: user_ids
           description: Идентификаторы пользователей
@@ -83,6 +90,7 @@ paths:
         Для пользователей с типом:
         `admin`
         `service`
+        Требуется подписка.
       parameters:
         - name: city
           description: Город

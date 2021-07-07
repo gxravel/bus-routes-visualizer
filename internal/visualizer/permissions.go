@@ -24,6 +24,19 @@ func (r *Visualizer) GetPermissions(ctx context.Context, filter *dataprovider.Pe
 	return toV1Permissions(dbPermissions...), nil
 }
 
+func (r *Visualizer) CheckPermission(ctx context.Context, filter *dataprovider.PermissionFilter) error {
+	dbPermission, err := r.permissionStore.GetByFilter(ctx, filter)
+	if err != nil {
+		return err
+	}
+
+	if dbPermission == nil {
+		return ierr.ErrPermissionDenied
+	}
+
+	return nil
+}
+
 func toV1Permissions(dbPermissions ...*model.Permission) []*httpv1.Permission {
 	permissions := make([]*httpv1.Permission, 0, len(dbPermissions))
 	for _, p := range dbPermissions {
