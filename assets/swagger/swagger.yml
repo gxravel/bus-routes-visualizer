@@ -20,7 +20,56 @@ securityDefinitions:
     name: Authorization
     in: header
 
+definitions:
+  permission:
+    description: Права пользователя на определенные действия
+    properties:
+      user_id:
+        description: Идентификаторы пользователей
+        type: integer
+        example: 1
+      actions:
+        description: Действия, разрешенные пользователю
+        type: array
+        items:
+          type: string
+        example: [action1, action2]
+
+tags:
+  - name: graphs
+    description: Graphs routes
+  - name: permissions
+    description: Permissions routes
+
 paths:
+  /api/v1/permissions:
+    get:
+      summary: Получение прав пользователей на определенные действия
+      tags:
+        - permissions
+      parameters:
+        - name: user_ids
+          description: Идентификаторы пользователей
+          in: query
+          type: array
+          items:
+            type: integer
+        - name: actions
+          description: Действия, разрешенные пользователю
+          in: query
+          type: array
+          items:
+            type: string
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/permission"
+        "400":
+          description: Bad request
+        "500":
+          description: Internal server error
+
   /api/v1/graphs:
     get:
       summary: Получение графа маршрутов автобуса

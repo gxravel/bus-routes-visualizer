@@ -51,6 +51,10 @@ func NewServer(
 
 	r.Route("/api", func(r chi.Router) {
 		r.Route("/v1", func(r chi.Router) {
+			r.Route("/permissions", func(r chi.Router) {
+				r.Get("/", srv.getPermissions)
+			})
+
 			r.Route("/graphs", func(r chi.Router) {
 				r.Use(mw.Auth(visualizer))
 

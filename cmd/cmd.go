@@ -75,6 +75,7 @@ func main() {
 		txer,
 		mysql.NewRouteStore(db, txer),
 		mysql.NewRoutePointStore(db, txer),
+		mysql.NewPermissionStore(db, txer),
 		jwt.New(storage, *cfg),
 		service.NewBusRoutesService(logger, cfg),
 	)
