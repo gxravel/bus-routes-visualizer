@@ -16,6 +16,7 @@ type Visualizer struct {
 	txer            dataprovider.Txer
 	routeStore      dataprovider.RouteStore
 	routePointStore dataprovider.RoutePointStore
+	permissionStore dataprovider.PermissionStore
 	tokenManager    jwt.Manager
 	busroutes       service.BusRoutes
 }
@@ -27,6 +28,7 @@ func New(
 	txer dataprovider.Txer,
 	routeStore dataprovider.RouteStore,
 	routePointStore dataprovider.RoutePointStore,
+	permissionStore dataprovider.PermissionStore,
 	jwtManager jwt.Manager,
 	busroutes service.BusRoutes,
 ) *Visualizer {
@@ -35,9 +37,10 @@ func New(
 		db:              db,
 		logger:          logger,
 		txer:            txer,
-		tokenManager:    jwtManager,
 		routeStore:      routeStore,
 		routePointStore: routePointStore,
+		permissionStore: permissionStore,
+		tokenManager:    jwtManager,
 		busroutes:       busroutes,
 	}
 }
