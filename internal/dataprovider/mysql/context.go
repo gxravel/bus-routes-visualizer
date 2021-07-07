@@ -2,10 +2,8 @@ package mysql
 
 import (
 	"context"
-	"fmt"
 
 	log "github.com/gxravel/bus-routes-visualizer/internal/logger"
-	"github.com/gxravel/bus-routes-visualizer/internal/model"
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/jmoiron/sqlx"
@@ -34,23 +32,6 @@ func execContext(ctx context.Context, qb interface{}, entity string, db sqlx.Ext
 	}
 
 	return nil
-}
-
-// selectContext executes a query and return RouteJoined
-func selectContext(ctx context.Context, qb sq.SelectBuilder, entity string, db sqlx.ExtContext) ([]*model.RouteJoined, error) {
-	query, args, codewords, err := toSql(ctx, qb, entity)
-	if err != nil {
-		return nil, err
-	}
-
-	msg := fmt.Sprintf(codewords+" by filter with query %s", query)
-
-	var result = make([]*model.RouteJoined, 0)
-
-	if err := sqlx.SelectContext(ctx, db, &result, query, args...); err != nil {
-		return nil, errors.Wrapf(err, msg)
-	}
-	return result, nil
 }
 
 // toSql builds the query into a SQL string and bound args and logs the result.

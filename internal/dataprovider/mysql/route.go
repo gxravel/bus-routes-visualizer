@@ -68,7 +68,7 @@ func (s *RouteStore) columns(filter *dataprovider.RouteFilter) []string {
 }
 
 func (s *RouteStore) joins(qb sq.SelectBuilder, filter *dataprovider.RouteFilter) sq.SelectBuilder {
-	qb = qb.Join("route_point ON route.id = route_point.id")
+	qb = qb.Join("route_point ON route.id = route_point.route_id")
 	return qb
 }
 
@@ -103,7 +103,18 @@ func (s *RouteStore) GetListByFilter(ctx context.Context, filter *dataprovider.R
 	qb = s.joins(qb, filter)
 	qb = s.ordersBy(qb, filter)
 
-	return selectContext(ctx, qb, s.tableName, s.db)
+	query, args, codewords, err := toSql(ctx, qb, s.tableName)
+	if err != nil {
+		return nil, err
+	}
+
+	result := make([]*model.RouteJoined, 0)
+
+	if err := sqlx.SelectContext(ctx, s.db, &result, query, args...); err != nil {
+		return nil, errors.Wrapf(err, "%s by filter with query %s", codewords, query)
+	}
+
+	return result, nil
 }
 
 // Add creates new routes and according route_points.
