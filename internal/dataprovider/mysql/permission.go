@@ -36,14 +36,24 @@ func (s *PermissionStore) WithTx(tx *dataprovider.Tx) dataprovider.PermissionSto
 }
 
 func permissionCond(f *dataprovider.PermissionFilter) sq.Sqlizer {
-	eq := make(sq.Eq)
-	var cond sq.Sqlizer = eq
+	and := make(sq.And, 0)
 
 	if len(f.UserIDs) > 0 {
+		eq := make(sq.Eq, len(f.UserIDs))
 		eq["permission.user_id"] = f.UserIDs
+		and = append(and, eq)
 	}
 
-	return cond
+	if len(f.Actions) > 0 {
+		or := make(sq.Or, 0, len(f.Actions))
+		for _, action := range f.Actions {
+			or = append(or, sq.Expr("JSON_CONTAINS(actions, JSON_QUOTE(?), '$.actions') = 1", action))
+		}
+
+		and = append(and, or)
+	}
+
+	return and
 }
 
 func (s *PermissionStore) columns(filter *dataprovider.PermissionFilter) []string {

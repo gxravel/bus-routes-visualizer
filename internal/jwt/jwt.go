@@ -16,7 +16,7 @@ type Manager interface {
 	parse(tokenString string) (string, error)
 	checkIfExist(ctx context.Context, tokenUUID string) error
 
-	Verify(ctx context.Context, tokenString string) error
+	Verify(ctx context.Context, tokenString string) (int64, error)
 }
 
 // JWT contains the fields which interact with the token.
@@ -56,21 +56,22 @@ func (m *JWT) parse(tokenString string) (string, error) {
 	return tokenUUID, nil
 }
 
-// checkIfExist checks if token exists in the storage database.
+// checkIfExist checks if token exists in the storage database and re.
 func (m *JWT) checkIfExist(ctx context.Context, tokenUUID string) error {
 	return m.client.Get(ctx, tokenUUID).Err()
 }
 
-// Verify verifies token, and if it presents in storage returns the user.
-func (m *JWT) Verify(ctx context.Context, tokenString string) error {
+// Verify verifies token, and if it presents in storage returns the user id.
+func (m *JWT) Verify(ctx context.Context, tokenString string) (int64, error) {
 	tokenUUID, err := m.parse(tokenString)
 	if err != nil {
-		return err
+		return 0, err
 	}
 
-	if err := m.checkIfExist(ctx, tokenUUID); err != nil {
-		return ierr.NewReason(ierr.ErrTokenExpired)
+	userID, err := m.client.Get(ctx, tokenUUID).Int64()
+	if err != nil {
+		return 0, ierr.NewReason(ierr.ErrTokenExpired)
 	}
 
-	return nil
+	return userID, nil
 }

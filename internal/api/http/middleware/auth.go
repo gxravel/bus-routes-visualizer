@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	api "github.com/gxravel/bus-routes-visualizer/internal/api/http"
+	"github.com/gxravel/bus-routes-visualizer/internal/dataprovider"
 	log "github.com/gxravel/bus-routes-visualizer/internal/logger"
 	"github.com/gxravel/bus-routes-visualizer/internal/visualizer"
 	"github.com/gxravel/bus-routes-visualizer/internal/visualizercontext"
@@ -19,7 +20,7 @@ func Auth(visualizer *visualizer.Visualizer) func(http.Handler) http.Handler {
 
 			token := getAuthToken(r)
 
-			err := visualizer.VerifyToken(ctx, token)
+			userID, err := visualizer.VerifyToken(ctx, token)
 			if err != nil {
 				log.
 					FromContext(ctx).
@@ -30,11 +31,27 @@ func Auth(visualizer *visualizer.Visualizer) func(http.Handler) http.Handler {
 				return
 			}
 
+			filter := dataprovider.
+				NewPermissionFilter().
+				ByUserIDs(userID).
+				ByActions(r.Method + ":" + r.URL.Path[7:])
+
+			if err := visualizer.CheckPermission(ctx, filter); err != nil {
+				log.
+					FromContext(ctx).
+					WithErr(err).
+					WithFields(
+						"userID", userID,
+						"actions", filter.Actions,
+					).
+					Debug("check permission")
+				api.RespondError(ctx, w, err)
+				return
+			}
+
 			ctx = context.WithValue(ctx, visualizercontext.TokenKey, token)
 
-			r = r.WithContext(ctx)
-
-			next.ServeHTTP(w, r)
+			next.ServeHTTP(w, r.WithContext(ctx))
 		})
 	}
 }
