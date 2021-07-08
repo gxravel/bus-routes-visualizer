@@ -22,20 +22,7 @@ type Reason struct {
 
 func (r *Reason) Type() ReasonType { return r.RType }
 
-func (r *Reason) Error() string {
-	cause := r.Cause()
-
-	result := strings.Builder{}
-	result.Grow(len(r.Message) + len(cause.Error()))
-
-	if r.Message != "" {
-		result.WriteString(r.Message + ": ")
-	}
-
-	result.WriteString(cause.Error())
-
-	return result.String()
-}
+func (r *Reason) Error() string { return r.Cause().Error() }
 
 func (r *Reason) Cause() error { return r.Err }
 
