@@ -10,6 +10,10 @@ import (
 	"github.com/pkg/errors"
 )
 
+var (
+	errNoRowsAffected = errors.New("no rows affected")
+)
+
 // execContext builds the query that doesn't return rows and executes it.
 func execContext(ctx context.Context, qb interface{}, entity string, db sqlx.ExtContext) error {
 	query, args, codewords, err := toSql(ctx, qb, entity)
@@ -28,13 +32,13 @@ func execContext(ctx context.Context, qb interface{}, entity string, db sqlx.Ext
 	}
 
 	if num == 0 {
-		return errors.New("no rows affected")
+		return errNoRowsAffected
 	}
 
 	return nil
 }
 
-// toSql builds the query into a SQL string and bound args and logs the result.
+// toSql builds the query into a SQL string and bound args, and logs the result.
 func toSql(ctx context.Context, qb interface{}, entity string) (string, []interface{}, string, error) {
 	var (
 		query     string

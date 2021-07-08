@@ -39,8 +39,9 @@ func permissionCond(f *dataprovider.PermissionFilter) sq.Sqlizer {
 	and := make(sq.And, 0)
 
 	if len(f.UserIDs) > 0 {
-		eq := make(sq.Eq, len(f.UserIDs))
+		eq := make(sq.Eq)
 		eq["permission.user_id"] = f.UserIDs
+
 		and = append(and, eq)
 	}
 
@@ -110,24 +111,43 @@ func (s *PermissionStore) Add(ctx context.Context, permissions ...*model.Permiss
 			return errors.Wrapf(err, "couldn't get driver.Value of actions: %v", actions)
 		}
 
-		qb = qb.Values(p.UserID)
+		qb = qb.Values(p.UserID, actions)
 	}
 
 	return execContext(ctx, qb, s.tableName, s.db)
 }
 
 // Update updates permissions' actions.
-func (s *PermissionStore) Update(ctx context.Context, permission *model.Permission) error {
-	actions, err := permission.Actions.Value()
-	if err != nil {
-		return errors.Wrapf(err, "couldn't get driver.Value of actions: %v", actions)
+// It skips the missing ids and returns affected ones.
+func (s *PermissionStore) Update(ctx context.Context, permissions ...*model.Permission) ([]int64, error) {
+	qb := sq.Update(s.tableName)
+
+	ids := make([]int64, 0)
+
+	f := func(tx *dataprovider.Tx) error {
+		for _, p := range permissions {
+			actions, err := p.Actions.Value()
+			if err != nil {
+				return errors.Wrapf(err, "couldn't get driver.Value of actions: %v", actions)
+			}
+
+			ub := qb.Set("actions", actions).
+				Where(sq.Eq{"user_id": p.UserID})
+
+			if err := execContext(ctx, ub, s.tableName, tx); err != nil {
+				if errors.Is(err, errNoRowsAffected) {
+					continue
+				}
+				return err
+			}
+
+			ids = append(ids, p.UserID)
+		}
+
+		return nil
 	}
 
-	qb := sq.Update(s.tableName).
-		Set("actions", actions).
-		Where(sq.Eq{"user_id": permission.UserID})
-
-	return execContext(ctx, qb, s.tableName, s.db)
+	return ids, dataprovider.BeginAutoCommitedTx(ctx, s.txer, f)
 }
 
 // Delete deletes permission depend on received filter.

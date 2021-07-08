@@ -10,8 +10,8 @@ type PermissionStore interface {
 	WithTx(*Tx) PermissionStore
 	GetByFilter(ctx context.Context, filter *PermissionFilter) (*model.Permission, error)
 	GetListByFilter(ctx context.Context, filter *PermissionFilter) ([]*model.Permission, error)
-	Add(ctx context.Context, routes ...*model.Permission) error
-	Update(ctx context.Context, route *model.Permission) error
+	Add(ctx context.Context, permissions ...*model.Permission) error
+	Update(ctx context.Context, permission ...*model.Permission) ([]int64, error)
 	Delete(ctx context.Context, filter *PermissionFilter) error
 }
 

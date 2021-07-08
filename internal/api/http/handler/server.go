@@ -60,6 +60,8 @@ func NewServer(
 				)
 
 				r.Get("/", srv.getPermissions)
+				r.Post("/", srv.setPermissions)
+				r.Delete("/", srv.deletePermissions)
 			})
 
 			r.Route("/graphs", func(r chi.Router) {
