@@ -6,6 +6,7 @@ import (
 
 	"github.com/gxravel/bus-routes-visualizer/internal/config"
 	ierr "github.com/gxravel/bus-routes-visualizer/internal/errors"
+	"github.com/gxravel/bus-routes-visualizer/internal/model"
 	"github.com/gxravel/bus-routes-visualizer/internal/storage"
 
 	"github.com/dgrijalva/jwt-go"
@@ -13,10 +14,10 @@ import (
 
 // Manager includes the methods allowed to deal with the token.
 type Manager interface {
-	parse(tokenString string) (string, error)
+	parse(tokenString string) (*Claims, error)
 	checkIfExist(ctx context.Context, tokenUUID string) error
 
-	Verify(ctx context.Context, tokenString string) (int64, error)
+	Verify(ctx context.Context, tokenString string) (*User, error)
 }
 
 // JWT contains the fields which interact with the token.
@@ -29,13 +30,25 @@ func New(client *storage.Client, config config.Config) *JWT {
 	return &JWT{client: client, config: config}
 }
 
-// parse parses a string token with the key.
-func (m *JWT) parse(tokenString string) (string, error) {
+// User describes user built into the token
+type User struct {
+	ID   int64          `json:"id"`
+	Type model.UserType `json:"type"`
+}
+
+// Claims defines JWT token claims.
+type Claims struct {
+	User *User `json:"user"`
+	jwt.StandardClaims
+}
+
+// parse parses a string token with the key and returns claims.
+func (m *JWT) parse(tokenString string) (*Claims, error) {
 	var key = []byte(m.config.JWT.AccessKey)
 
-	claims := jwt.MapClaims{}
+	claims := &Claims{}
 
-	jwtToken, err := jwt.ParseWithClaims(tokenString, &claims, func(t *jwt.Token) (interface{}, error) {
+	jwtToken, err := jwt.ParseWithClaims(tokenString, claims, func(t *jwt.Token) (interface{}, error) {
 		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, ierr.NewReason(ierr.ErrInvalidJWT).
 				WithMessage(fmt.Sprintf("unexpected signing method: %v", t.Header["alg"]))
@@ -45,15 +58,18 @@ func (m *JWT) parse(tokenString string) (string, error) {
 	})
 
 	if err != nil || !jwtToken.Valid {
-		return "", ierr.NewReason(ierr.ErrInvalidToken).WithMessage("token validation failed")
+		return nil, ierr.NewReason(ierr.ErrInvalidToken).WithMessage("token validation failed")
 	}
 
-	tokenUUID, ok := claims["jti"].(string)
-	if !ok {
-		return "", ierr.NewReason(ierr.ErrInvalidToken).WithMessage("failed to get claims id")
+	if claims.User == nil {
+		return nil, ierr.NewReason(ierr.ErrInvalidToken).WithMessage("failed to get claims user")
 	}
 
-	return tokenUUID, nil
+	if claims.Id == "" {
+		return nil, ierr.NewReason(ierr.ErrInvalidToken).WithMessage("failed to get claims id")
+	}
+
+	return claims, nil
 }
 
 // checkIfExist checks if token exists in the storage database and re.
@@ -61,17 +77,16 @@ func (m *JWT) checkIfExist(ctx context.Context, tokenUUID string) error {
 	return m.client.Get(ctx, tokenUUID).Err()
 }
 
-// Verify verifies token, and if it presents in storage returns the user id.
-func (m *JWT) Verify(ctx context.Context, tokenString string) (int64, error) {
-	tokenUUID, err := m.parse(tokenString)
+// Verify verifies token, and if it presents in storage returns the user.
+func (m *JWT) Verify(ctx context.Context, tokenString string) (*User, error) {
+	claims, err := m.parse(tokenString)
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
 
-	userID, err := m.client.Get(ctx, tokenUUID).Int64()
-	if err != nil {
-		return 0, ierr.NewReason(ierr.ErrTokenExpired)
+	if err := m.checkIfExist(ctx, claims.Id); err != nil {
+		return nil, ierr.NewReason(ierr.ErrTokenExpired)
 	}
 
-	return userID, nil
+	return claims.User, nil
 }
