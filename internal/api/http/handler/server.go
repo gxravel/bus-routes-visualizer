@@ -8,6 +8,7 @@ import (
 	mw "github.com/gxravel/bus-routes-visualizer/internal/api/http/middleware"
 	"github.com/gxravel/bus-routes-visualizer/internal/config"
 	log "github.com/gxravel/bus-routes-visualizer/internal/logger"
+	"github.com/gxravel/bus-routes-visualizer/internal/model"
 	"github.com/gxravel/bus-routes-visualizer/internal/visualizer"
 
 	"github.com/go-chi/chi"
@@ -51,13 +52,26 @@ func NewServer(
 
 	r.Route("/api", func(r chi.Router) {
 		r.Route("/v1", func(r chi.Router) {
-			r.Use(mw.Auth(visualizer))
 
 			r.Route("/permissions", func(r chi.Router) {
+				r.Use(
+					mw.RegisterUserTypes(model.UserAdmin),
+					mw.Auth(visualizer),
+				)
+
 				r.Get("/", srv.getPermissions)
 			})
 
 			r.Route("/graphs", func(r chi.Router) {
+				r.Use(
+					mw.RegisterUserTypes(
+						model.UserAdmin,
+						model.UserService,
+					),
+					mw.Auth(visualizer),
+					mw.CheckPermission(visualizer),
+				)
+
 				r.Get("/", srv.getGraph)
 			})
 		})
