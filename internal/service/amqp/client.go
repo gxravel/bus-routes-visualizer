@@ -12,10 +12,12 @@ import (
 	"github.com/pkg/errors"
 )
 
+// amqpClient wraps rmq.Client to interact with RabbitMQ.
 type amqpClient struct {
 	*rmq.Client
 }
 
+// newCustomClient creates new instance of amqpClient
 func newCustomClient(client *rmq.Client) *amqpClient {
 	c := &amqpClient{
 		Client: client,
@@ -24,6 +26,8 @@ func newCustomClient(client *rmq.Client) *amqpClient {
 	return c
 }
 
+// CallRPC calls RPC with message body.
+// Waits an answer and writes it to the response.
 func (c *amqpClient) CallRPC(ctx context.Context, meta *rmq.Meta, body, response interface{}) error {
 	messageBody, err := c.ConvertToMessage(body)
 	if err != nil {
@@ -54,6 +58,7 @@ func (c *amqpClient) CallRPC(ctx context.Context, meta *rmq.Meta, body, response
 	}
 }
 
+// processRequest processes a request by calling RPC, processing response and logging the data.
 func (c *amqpClient) processRequest(ctx context.Context, meta *rmq.Meta, body, result interface{}) error {
 	logger := log.FromContext(ctx).WithField("meta", meta)
 
@@ -77,6 +82,7 @@ func (c *amqpClient) processRequest(ctx context.Context, meta *rmq.Meta, body, r
 	return nil
 }
 
+// processResponse processses a response by making the checks and handling response error.
 func (c *amqpClient) processResponse(response *amqpv1.Response) error {
 	if response == nil {
 		return nil

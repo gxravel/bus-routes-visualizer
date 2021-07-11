@@ -66,7 +66,7 @@ func ParseQueryInt64Slice(r *http.Request, field string) ([]int64, error) {
 	return vals, nil
 }
 
-// ParseGraphsRequest returns the url for further request to get bus ids.
+// ParseGraphsRequest parses query 'bus', 'city', and returns the bus.
 func ParseGraphsRequest(r *http.Request) (*httpv1.Bus, error) {
 	bus, err := ParseQueryParam(r, "bus")
 	if err != nil {
@@ -84,7 +84,7 @@ func ParseGraphsRequest(r *http.Request) (*httpv1.Bus, error) {
 	}, nil
 }
 
-// ParsePermissionsFilter parses user_ids and actions, and returns the filter.
+// ParsePermissionsFilter parses 'user_ids', 'actions', and returns the filter.
 func ParsePermissionsFilter(r *http.Request) (*dataprovider.PermissionFilter, error) {
 	ids, err := ParseQueryInt64Slice(r, "user_ids")
 	if err != nil {

@@ -32,7 +32,7 @@ func NewServer(
 			ReadTimeout:  cfg.API.ReadTimeout,
 			WriteTimeout: cfg.API.WriteTimeout,
 		},
-		logger:       logger.WithStr("module", "api:http"),
+		logger:       logger.WithModule("api:http"),
 		visualizer:   visualizer,
 		busroutesAPI: cfg.API.BusRoutes,
 	}
@@ -45,10 +45,6 @@ func NewServer(
 	if cfg.API.ServeSwagger {
 		registerSwagger(r)
 	}
-
-	r.Route("/internal", func(r chi.Router) {
-		r.Get("/health", srv.getHealth)
-	})
 
 	r.Route("/api", func(r chi.Router) {
 		r.Route("/v1", func(r chi.Router) {
@@ -74,7 +70,7 @@ func NewServer(
 					mw.CheckPermission(visualizer),
 				)
 
-				r.Get("/", srv.getGraph)
+				r.Get("/", srv.getRoutesGraph)
 			})
 		})
 	})
@@ -93,7 +89,6 @@ func registerSwagger(r *chi.Mux) {
 	r.Get("/internal/swagger/*", swaggerHandler.ServeHTTP)
 }
 
-// nolint
 func (s *Server) processRequest(r *http.Request, data interface{}) error {
 	if err := json.NewDecoder(r.Body).Decode(data); err != nil {
 		s.logger.WithErr(err).Error("decode data")

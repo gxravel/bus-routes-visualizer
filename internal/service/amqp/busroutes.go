@@ -11,6 +11,7 @@ import (
 )
 
 // BusRoutesService implements busroutes service interface.
+// It uses amqp.
 type BusRoutesService struct {
 	client *amqpClient
 }

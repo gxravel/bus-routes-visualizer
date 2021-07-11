@@ -16,14 +16,14 @@ type Response struct {
 	Error *APIError   `json:"error,omitempty"`
 }
 
-// APIReason describes http model of error reason.
+// APIReason describes http model of error reason for api v1.
 type APIReason struct {
 	RType   string `json:"type"`
 	Err     string `json:"error"`
 	Message string `json:"message,omitempty"`
 }
 
-// APIError describes http model of error.
+// APIError describes http model of error for api v1.
 type APIError struct {
 	Reason *APIReason `json:"reason"`
 }
@@ -62,25 +62,25 @@ type RouteDetailed struct {
 	Points []RoutePoint `json:"points"`
 }
 
-// RangeBusesResponse describes response for range of buses.
+// RangeBusesResponse describes response for range of buses for api v1.
 type RangeBusesResponse struct {
 	Buses []*Bus `json:"items"`
 	Total int64  `json:"total"`
 }
 
-// RangeBusesResponse describes response for buses.
+// RangeBusesResponse describes response for buses for api v1.
 type BusesResponse struct {
 	Data  *RangeBusesResponse `json:"data,omitempty"`
 	Error *APIError           `json:"error,omitempty"`
 }
 
-// RangeBusesResponse describes response for range of routes.
+// RangeBusesResponse describes response for range of routes for api v1.
 type RangeRoutesResponse struct {
 	Routes []*RouteDetailed `json:"items"`
 	Total  int64            `json:"total"`
 }
 
-// RangeBusesResponse describes response for routes.
+// RangeBusesResponse describes response for routes for api v1.
 type RoutesResponse struct {
 	Data  *RangeRoutesResponse `json:"data,omitempty"`
 	Error *APIError            `json:"error,omitempty"`
