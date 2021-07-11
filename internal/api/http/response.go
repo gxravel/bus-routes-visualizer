@@ -95,7 +95,7 @@ func RespondData(ctx context.Context, w http.ResponseWriter, code int, val inter
 // RespondError converts error to Reason, resolves http status code and responds with APIError.
 func RespondError(ctx context.Context, w http.ResponseWriter, err error) {
 	reason := ierr.ConvertToReason(err)
-	code := ierr.ResolveStatusCode(ierr.Cause(reason.Err))
+	code := ierr.ResolveStatusCode(reason.Err)
 
 	RespondJSON(ctx, w, code, &httpv1.Response{
 		Error: &httpv1.APIError{
