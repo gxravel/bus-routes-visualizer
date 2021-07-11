@@ -42,11 +42,9 @@ type User struct {
 
 // Bus describes http model of bus for api v1.
 type Bus struct {
-	ID     int64  `json:"id,omitempty"`
-	CityID int    `json:"city_id,omitempty"`
-	Num    string `json:"num"`
-
-	City string `json:"city,omitempty"`
+	ID   int64  `json:"id,omitempty"`
+	Num  string `json:"num"`
+	City string `json:"city"`
 }
 
 // RoutePoint describes a unit of route for a bus.
