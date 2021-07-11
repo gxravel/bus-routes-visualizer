@@ -96,9 +96,9 @@ func RespondError(ctx context.Context, w http.ResponseWriter, err error) {
 	code := ierr.ResolveStatusCode(ierr.Cause(reason.Err))
 
 	RespondJSON(ctx, w, code, &httpv1.Response{
-		Error: &ierr.APIError{
-			Reason: &ierr.APIReason{
-				RType:   reason.RType,
+		Error: &httpv1.APIError{
+			Reason: &httpv1.APIReason{
+				RType:   string(reason.RType),
 				Err:     reason.Error(),
 				Message: reason.Message,
 			},

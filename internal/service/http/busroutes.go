@@ -2,14 +2,15 @@ package http
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
 
+	httpv1 "github.com/gxravel/bus-routes-visualizer/internal/api/http/handler/v1"
 	"github.com/gxravel/bus-routes-visualizer/internal/config"
 	log "github.com/gxravel/bus-routes-visualizer/internal/logger"
 	"github.com/gxravel/bus-routes-visualizer/internal/service"
-	httpv1 "github.com/gxravel/bus-routes-visualizer/internal/service/http/v1"
 )
 
 // BusRoutesService implements busroutes service interface.
@@ -32,14 +33,16 @@ func NewBusRoutesService(logger log.Logger, conf *config.Config) service.BusRout
 }
 
 const (
-	RouteForBuses  = "/buses"
+	routeForBuses  = "/buses"
 	routeForRoutes = "/routes/detailed"
 )
 
 // GetRoutesDetailed makes 2 requests to the API:
 // 1) /buses for receiving buses ids
 // 2) /routes/detailed for receiving routes.
-func (s *BusRoutesService) GetRoutesDetailed(ctx context.Context, url string) ([]*httpv1.RouteDetailed, error) {
+func (s *BusRoutesService) GetRoutesDetailed(ctx context.Context, bus *httpv1.Bus) ([]*httpv1.RouteDetailed, error) {
+	url := fmt.Sprintf("%s?cities=%s&nums=%s", s.api+routeForBuses, bus.City, bus.Num)
+
 	logger := log.FromContext(ctx).WithStr("url", url)
 	logger.Debug("going for buses")
 
