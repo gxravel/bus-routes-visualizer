@@ -71,7 +71,7 @@ func (r *Visualizer) SetPermissions(ctx context.Context, permissions []*httpv1.P
 	return nil
 }
 
-// CheckPermission deletes users permissions for actions (by filter).
+// DeletePermissions deletes users permissions for actions (by filter).
 func (r *Visualizer) DeletePermissions(ctx context.Context, filter *dataprovider.PermissionFilter) error {
 	return r.permissionStore.Delete(ctx, filter)
 }

@@ -9,6 +9,7 @@ import (
 	"github.com/gxravel/bus-routes-visualizer/internal/model"
 )
 
+// GetUserByToken returns user withdrawn from the JWT token claims, unless it is of not allowed type.
 func (r *Visualizer) GetUserByToken(ctx context.Context, token string, allowedTypes ...model.UserType) (*httpv1.User, error) {
 	if token == "" {
 		err := ierr.NewReason(ierr.ErrInvalidToken)

@@ -14,6 +14,7 @@ import (
 )
 
 // BusRoutesService implements busroutes service interface.
+// It uses http.
 type BusRoutesService struct {
 	client *httpClient
 	api    string
