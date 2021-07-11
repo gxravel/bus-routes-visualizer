@@ -30,3 +30,6 @@ remote_services:
     default_timeout: {{ config.remote_services.default_timeout }} # default: 30s
     default_max_conns: {{ config.remote_services.default_max_conns }} # default: 64
     skip_tls_verify: {{ config.remote_services.skip_tls_verify }} # turn off tls verification. default: false
+
+rabbitmq:
+    url: {{ config.rabbitmq.url }} # default amqp://guest:guest@localhost:5672/
