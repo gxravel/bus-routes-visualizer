@@ -53,7 +53,6 @@ func DrawRoutes(name string, routes []*httpv1.RouteDetailed) (string, error) {
 			dc.DrawString(fmt.Sprintf("%d) %s", point.Step, point.Address), x+stringXOffset, y+stringYOffset)
 
 			x2 := x + xOffset
-
 			dc.LineTo(x2, y)
 
 			if j != len(route.Points)-1 {
