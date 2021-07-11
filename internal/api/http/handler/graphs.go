@@ -6,7 +6,7 @@ import (
 	api "github.com/gxravel/bus-routes-visualizer/internal/api/http"
 )
 
-func (s *Server) getGraph(w http.ResponseWriter, r *http.Request) {
+func (s *Server) getRoutesGraph(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	bus, err := api.ParseGraphsRequest(r)
