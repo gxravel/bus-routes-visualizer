@@ -22,9 +22,7 @@ type Reason struct {
 
 func (r *Reason) Type() ReasonType { return r.RType }
 
-func (r *Reason) Error() string { return r.Cause().Error() }
-
-func (r *Reason) Cause() error { return r.Err }
+func (r *Reason) Error() string { return r.Err.Error() }
 
 func (e *Reason) WithMessage(message string) *Reason {
 	e.Message = message
@@ -68,16 +66,11 @@ func (e *typedError) Type() ReasonType {
 }
 
 func (e *typedError) Error() string {
-	cause := e.Cause()
-	if cause == nil {
+	if e.err == nil {
 		return ""
 	}
 
-	return cause.Error()
-}
-
-func (e *typedError) Cause() error {
-	return e.err
+	return e.err.Error()
 }
 
 func NewTypedError(reasonType ReasonType, err error) TypedError {
@@ -95,22 +88,4 @@ func CheckDuplicate(err error, field string) error {
 	}
 
 	return nil
-}
-
-type causer interface {
-	Cause() error
-}
-
-// Cause returns true cause error of err.
-func Cause(err error) error {
-	for err != nil {
-		cause, okCause := err.(causer)
-		if okCause {
-			err = cause.Cause()
-		} else {
-			break
-		}
-	}
-
-	return err
 }
