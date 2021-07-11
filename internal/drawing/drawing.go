@@ -5,7 +5,7 @@ import (
 	"image/color"
 	"path/filepath"
 
-	v1 "github.com/gxravel/bus-routes-visualizer/internal/service/http/v1"
+	httpv1 "github.com/gxravel/bus-routes-visualizer/internal/api/http/handler/v1"
 
 	"github.com/fogleman/gg"
 )
@@ -28,7 +28,7 @@ const (
 
 // DrawRoutes draws routes as a linear graph with addresses as vertexes and saves it in PNG.
 // Returns path to the image.
-func DrawRoutes(name string, routes []*v1.RouteDetailed) (string, error) {
+func DrawRoutes(name string, routes []*httpv1.RouteDetailed) (string, error) {
 	dc := gg.NewContext(defaultWidth, defaultHeight)
 
 	dc.SetRGB(0, 0, 0)

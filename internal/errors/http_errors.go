@@ -2,18 +2,6 @@ package errors
 
 import "net/http"
 
-// APIReason describes http model of error reason.
-type APIReason struct {
-	RType   ReasonType `json:"type"`
-	Err     string     `json:"error"`
-	Message string     `json:"message,omitempty"`
-}
-
-// APIError describes http model of error.
-type APIError struct {
-	Reason *APIReason `json:"reason"`
-}
-
 type HTTPStatusCoder interface {
 	HTTPStatusCode() int
 }
