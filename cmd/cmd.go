@@ -84,7 +84,7 @@ func main() {
 		mysql.NewRoutePointStore(db, txer),
 		mysql.NewPermissionStore(db, txer),
 		jwt.New(storage, *cfg),
-		service.NewBusRoutesService(broker),
+		service.NewBusroutesService(broker),
 	)
 
 	apiServer := handler.NewServer(

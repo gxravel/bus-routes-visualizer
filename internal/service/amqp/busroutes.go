@@ -10,21 +10,21 @@ import (
 	"github.com/gxravel/bus-routes/pkg/rmq"
 )
 
-// BusRoutesService implements busroutes service interface.
+// BusroutesService implements busroutes service interface.
 // It uses amqp.
-type BusRoutesService struct {
+type BusroutesService struct {
 	client *amqpClient
 }
 
-// NewBusRoutesService creates new busroutes client.
-func NewBusRoutesService(client *rmq.Client) service.BusRoutes {
-	return &BusRoutesService{
+// NewBusroutesService creates new busroutes client.
+func NewBusroutesService(client *rmq.Client) service.Busroutes {
+	return &BusroutesService{
 		client: newCustomClient(client),
 	}
 }
 
 // GetRoutesDetailed makes request to the client and returns detailed routes:
-func (s *BusRoutesService) GetRoutesDetailed(ctx context.Context, bus *httpv1.Bus) ([]*httpv1.RouteDetailed, error) {
+func (s *BusroutesService) GetRoutesDetailed(ctx context.Context, bus *httpv1.Bus) ([]*httpv1.RouteDetailed, error) {
 	logger := log.FromContext(ctx).
 		WithFields(
 			"module", "GetRoutesDetailed",

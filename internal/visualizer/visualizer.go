@@ -18,7 +18,7 @@ type Visualizer struct {
 	routePointStore dataprovider.RoutePointStore
 	permissionStore dataprovider.PermissionStore
 	tokenManager    jwt.Manager
-	busroutes       service.BusRoutes
+	busroutes       service.Busroutes
 }
 
 func New(
@@ -30,7 +30,7 @@ func New(
 	routePointStore dataprovider.RoutePointStore,
 	permissionStore dataprovider.PermissionStore,
 	jwtManager jwt.Manager,
-	busroutes service.BusRoutes,
+	busroutes service.Busroutes,
 ) *Visualizer {
 	return &Visualizer{
 		config:          config,

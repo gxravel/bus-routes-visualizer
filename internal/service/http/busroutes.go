@@ -13,21 +13,21 @@ import (
 	"github.com/gxravel/bus-routes-visualizer/internal/service"
 )
 
-// BusRoutesService implements busroutes service interface.
+// BusroutesService implements busroutes service interface.
 // It uses http.
-type BusRoutesService struct {
+type BusroutesService struct {
 	client *httpClient
 	api    string
 }
 
-// NewBusRoutesService creates new busroutes client.
-func NewBusRoutesService(logger log.Logger, conf *config.Config) service.BusRoutes {
+// NewBusroutesService creates new busroutes client.
+func NewBusroutesService(logger log.Logger, conf *config.Config) service.Busroutes {
 	var customClient = newCustomClient(
 		withTimeout(conf),
 		withUseInsecureTLS(conf),
 	)
 
-	return &BusRoutesService{
+	return &BusroutesService{
 		client: customClient,
 		api:    conf.RemoteServices.BusroutesAPI,
 	}
@@ -41,7 +41,7 @@ const (
 // GetRoutesDetailed makes 2 requests to the API:
 // 1) /buses for receiving buses ids
 // 2) /routes/detailed for receiving routes.
-func (s *BusRoutesService) GetRoutesDetailed(ctx context.Context, bus *httpv1.Bus) ([]*httpv1.RouteDetailed, error) {
+func (s *BusroutesService) GetRoutesDetailed(ctx context.Context, bus *httpv1.Bus) ([]*httpv1.RouteDetailed, error) {
 	url := fmt.Sprintf("%s?cities=%s&nums=%s", s.api+routeForBuses, bus.City, bus.Num)
 
 	logger := log.FromContext(ctx).WithStr("url", url)
