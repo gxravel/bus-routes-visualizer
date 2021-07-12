@@ -72,7 +72,7 @@ func (m *JWT) parse(tokenString string) (*Claims, error) {
 	return claims, nil
 }
 
-// checkIfExist checks if token exists in the storage database, and returns an error if not so.
+// checkIfExist checks if token exists in the storage database and re.
 func (m *JWT) checkIfExist(ctx context.Context, tokenUUID string) error {
 	return m.client.Get(ctx, tokenUUID).Err()
 }

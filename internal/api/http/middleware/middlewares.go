@@ -10,7 +10,10 @@ import (
 func Logger(logger log.Logger) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		fn := func(w http.ResponseWriter, r *http.Request) {
-			ctx := log.CtxWithLogger(r.Context(), logger)
+			ctx := r.Context()
+
+			ctx = log.CtxWithLogger(ctx, logger)
+
 			next.ServeHTTP(w, r.WithContext(ctx))
 		}
 
@@ -23,6 +26,7 @@ func Recoverer(next http.Handler) http.Handler {
 		defer func() {
 			if err := recover(); err != nil {
 				log.FromContext(r.Context()).Errorf("panic: %v", err)
+
 				debug.PrintStack()
 
 				http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)

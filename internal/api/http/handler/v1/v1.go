@@ -1,6 +1,7 @@
 package v1
 
 import (
+	ierr "github.com/gxravel/bus-routes-visualizer/internal/errors"
 	"github.com/gxravel/bus-routes-visualizer/internal/model"
 )
 
@@ -12,20 +13,8 @@ type RangeItemsResponse struct {
 
 // Response describes http response for api v1.
 type Response struct {
-	Data  interface{} `json:"data,omitempty"`
-	Error *APIError   `json:"error,omitempty"`
-}
-
-// APIReason describes http model of error reason for api v1.
-type APIReason struct {
-	RType   string `json:"type"`
-	Err     string `json:"error"`
-	Message string `json:"message,omitempty"`
-}
-
-// APIError describes http model of error for api v1.
-type APIError struct {
-	Reason *APIReason `json:"reason"`
+	Data  interface{}    `json:"data,omitempty"`
+	Error *ierr.APIError `json:"error,omitempty"`
 }
 
 // Response describes http model of permission for api v1.
@@ -38,48 +27,4 @@ type Permission struct {
 type User struct {
 	ID   int64          `json:"id"`
 	Type model.UserType `json:"type"`
-}
-
-// Bus describes http model of bus for api v1.
-type Bus struct {
-	ID   int64  `json:"id,omitempty"`
-	Num  string `json:"num"`
-	City string `json:"city"`
-}
-
-// RoutePoint describes a unit of route for a bus.
-type RoutePoint struct {
-	Step    int8   `json:"step"`
-	Address string `json:"address"`
-}
-
-// RouteDetailed describes http model of detailed route for api v1.
-type RouteDetailed struct {
-	City   string       `json:"city"`
-	Bus    string       `json:"bus"`
-	Points []RoutePoint `json:"points"`
-}
-
-// RangeBusesResponse describes response for range of buses for api v1.
-type RangeBusesResponse struct {
-	Buses []*Bus `json:"items"`
-	Total int64  `json:"total"`
-}
-
-// RangeBusesResponse describes response for buses for api v1.
-type BusesResponse struct {
-	Data  *RangeBusesResponse `json:"data,omitempty"`
-	Error *APIError           `json:"error,omitempty"`
-}
-
-// RangeBusesResponse describes response for range of routes for api v1.
-type RangeRoutesResponse struct {
-	Routes []*RouteDetailed `json:"items"`
-	Total  int64            `json:"total"`
-}
-
-// RangeBusesResponse describes response for routes for api v1.
-type RoutesResponse struct {
-	Data  *RangeRoutesResponse `json:"data,omitempty"`
-	Error *APIError            `json:"error,omitempty"`
 }

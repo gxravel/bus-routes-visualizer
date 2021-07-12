@@ -8,7 +8,6 @@ import (
 
 	"github.com/gxravel/bus-routes-visualizer/internal/logger"
 
-	"github.com/gxravel/bus-routes/pkg/rmq"
 	"github.com/spf13/viper"
 )
 
@@ -22,7 +21,6 @@ type Config struct {
 	JWT            jwt            `mapstructure:"jwt"`
 	Storage        storage        `mapstructure:"storage"`
 	RemoteServices remoteServices `mapstructure:"remote_services"`
-	RabbitMQ       rmq.Config     `mapstructure:"rabbitmq"`
 }
 
 type api struct {
@@ -86,8 +84,6 @@ var defaults = map[string]interface{}{
 	"remote_services.default_timeout":   time.Second * 30,
 	"remote_services.default_max_conns": 64,
 	"remote_services.skip_tls_verify":   false,
-
-	"rabbitmq.url": "amqp://guest:guest@localhost:5672/",
 }
 
 func New(dst string) (*Config, error) {
