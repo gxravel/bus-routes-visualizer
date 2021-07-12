@@ -7,6 +7,7 @@ import (
 
 	api "github.com/gxravel/bus-routes-visualizer/internal/api/http"
 	"github.com/gxravel/bus-routes-visualizer/internal/dataprovider"
+	ierr "github.com/gxravel/bus-routes-visualizer/internal/errors"
 	log "github.com/gxravel/bus-routes-visualizer/internal/logger"
 	"github.com/gxravel/bus-routes-visualizer/internal/model"
 	"github.com/gxravel/bus-routes-visualizer/internal/visualizer"
@@ -60,6 +61,10 @@ func CheckPermission(visualizer *visualizer.Visualizer) func(http.Handler) http.
 			ctx := r.Context()
 
 			user := visualizercontext.GetUser(ctx)
+			if user == nil {
+				api.RespondError(ctx, w, ierr.ErrUnauthorized)
+				return
+			}
 
 			filter := dataprovider.
 				NewPermissionFilter().
