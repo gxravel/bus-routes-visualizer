@@ -4,18 +4,19 @@ import (
 	"net/http"
 
 	api "github.com/gxravel/bus-routes-visualizer/internal/api/http"
+	service "github.com/gxravel/bus-routes-visualizer/internal/service/http"
 )
 
-func (s *Server) getRoutesGraph(w http.ResponseWriter, r *http.Request) {
+func (s *Server) getGraph(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	bus, err := api.ParseGraphsRequest(r)
+	url, err := api.ParseGraphsRequest(r, s.busroutesAPI+service.RouteForBuses)
 	if err != nil {
 		api.RespondError(ctx, w, err)
 		return
 	}
 
-	routes, err := s.visualizer.GetRoutesDetailed(ctx, bus)
+	routes, err := s.visualizer.GetRoutesDetailed(ctx, url)
 	if err != nil {
 		api.RespondError(ctx, w, err)
 		return

@@ -1,6 +1,8 @@
 package database
 
 import (
+	"context"
+
 	"github.com/gxravel/bus-routes-visualizer/internal/config"
 	log "github.com/gxravel/bus-routes-visualizer/internal/logger"
 
@@ -50,4 +52,11 @@ func (db *Client) Migrate() error {
 	}
 
 	return nil
+}
+
+const statusCheckQuery = `SELECT true`
+
+func (db *Client) StatusCheck(ctx context.Context) error {
+	var tmp bool
+	return db.QueryRowContext(ctx, statusCheckQuery).Scan(&tmp)
 }
