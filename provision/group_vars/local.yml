@@ -15,7 +15,6 @@ config:
   api:
     serve_swagger: true
     address: ":8000"
-    busroutes: "http://localhost:8090/api/v1"
     read_timeout: 5s
     write_timeout: 5s
 
@@ -30,6 +29,7 @@ config:
     default_timeout: 30s
     default_max_conns: 64
     skip_tls_verify: true
+    busroutes_api: "http://localhost:8090/api/v1"
 
   rabbitmq:
     url: amqp://guest:guest@localhost:5672/

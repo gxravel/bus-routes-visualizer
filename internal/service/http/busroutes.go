@@ -29,7 +29,7 @@ func NewBusRoutesService(logger log.Logger, conf *config.Config) service.BusRout
 
 	return &BusRoutesService{
 		client: customClient,
-		api:    conf.API.BusRoutes,
+		api:    conf.RemoteServices.BusroutesAPI,
 	}
 }
 

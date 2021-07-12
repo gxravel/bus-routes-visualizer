@@ -15,7 +15,6 @@ api:
     serve_swagger: {{ config.api.serve_swagger }} # default: true
     # serve /version
     address: {{ config.api.address }} # default: ":4000"
-    busroutes: {{ config.api.busroutes }} # default: ":4010/api/v1"
     read_timeout: {{ config.api.read_timeout }} # default: 5s
     write_timeout: {{ config.api.write_timeout }} # default: 5s
 
@@ -30,6 +29,7 @@ remote_services:
     default_timeout: {{ config.remote_services.default_timeout }} # default: 30s
     default_max_conns: {{ config.remote_services.default_max_conns }} # default: 64
     skip_tls_verify: {{ config.remote_services.skip_tls_verify }} # turn off tls verification. default: false
+    busroutes_api: {{ config.remote_services.busroutes_api }} # default: "http://localhost:8090/api/v1"
 
 rabbitmq:
     url: {{ config.rabbitmq.url }} # default amqp://guest:guest@localhost:5672/

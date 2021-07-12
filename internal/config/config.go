@@ -27,7 +27,6 @@ type Config struct {
 type api struct {
 	ServeSwagger bool          `mapstructure:"serve_swagger"`
 	Address      string        `mapstructure:"address"`
-	BusRoutes    string        `mapstructure:"busroutes"`
 	ReadTimeout  time.Duration `mapstructure:"read_timeout"`
 	WriteTimeout time.Duration `mapstructure:"write_timeout"`
 }
@@ -57,6 +56,7 @@ type remoteServices struct {
 	DefaultTimeout  time.Duration `mapstructure:"default_timeout"`
 	DefaultMaxConns int           `mapstructure:"default_max_conns"`
 	SkipTLSVerify   bool          `mapstructure:"skip_tls_verify"`
+	BusroutesAPI    string        `mapstructure:"busroutes_api"`
 }
 
 type rabbitMQ struct {
@@ -74,7 +74,6 @@ var defaults = map[string]interface{}{
 
 	"api.serve_swagger": true,
 	"api.address":       ":4000",
-	"api.busroutes":     ":4010/api/v1",
 	"api.read_timeout":  time.Second * 5,
 	"api.write_timeout": time.Second * 5,
 
@@ -89,6 +88,7 @@ var defaults = map[string]interface{}{
 	"remote_services.default_timeout":   time.Second * 30,
 	"remote_services.default_max_conns": 64,
 	"remote_services.skip_tls_verify":   false,
+	"remote_services.busroutes_api":     "http://localhost:8090/api/v1",
 
 	"rabbitmq.url": "amqp://guest:guest@localhost:5672/",
 }

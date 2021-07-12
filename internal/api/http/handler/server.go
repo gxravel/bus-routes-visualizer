@@ -16,9 +16,8 @@ import (
 
 type Server struct {
 	*http.Server
-	logger       log.Logger
-	visualizer   *visualizer.Visualizer
-	busroutesAPI string
+	logger     log.Logger
+	visualizer *visualizer.Visualizer
 }
 
 func NewServer(
@@ -32,9 +31,8 @@ func NewServer(
 			ReadTimeout:  cfg.API.ReadTimeout,
 			WriteTimeout: cfg.API.WriteTimeout,
 		},
-		logger:       logger.WithModule("api:http"),
-		visualizer:   visualizer,
-		busroutesAPI: cfg.API.BusRoutes,
+		logger:     logger.WithModule("api:http"),
+		visualizer: visualizer,
 	}
 
 	r := chi.NewRouter()
