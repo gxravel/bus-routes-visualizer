@@ -12,6 +12,10 @@ import (
 	"github.com/pkg/errors"
 )
 
+const (
+	defaultTimeout = time.Second * 5
+)
+
 // amqpClient wraps rmq.Client to interact with RabbitMQ.
 type amqpClient struct {
 	*rmq.Client
@@ -63,8 +67,11 @@ func (c *amqpClient) processRequest(ctx context.Context, meta *rmq.Meta, body, r
 	logger := log.FromContext(ctx).WithField("meta", meta)
 
 	defer func(start time.Time) {
-		logger.WithField("duration", time.Since(start)).Debug("processed ampq request")
+		logger.WithField("duration", time.Since(start)).Debug("processed amqp request")
 	}(time.Now())
+
+	ctx, cancel := context.WithTimeout(ctx, defaultTimeout)
+	defer cancel()
 
 	response := &amqpv1.Response{Data: result}
 	if err := c.CallRPC(ctx, meta, body, response); err != nil {
