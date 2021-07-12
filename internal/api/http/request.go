@@ -1,12 +1,13 @@
 package api
 
 import (
-	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
 
+	httpv1 "github.com/gxravel/bus-routes-visualizer/internal/api/http/handler/v1"
 	"github.com/gxravel/bus-routes-visualizer/internal/dataprovider"
+
 	"github.com/pkg/errors"
 )
 
@@ -65,20 +66,39 @@ func ParseQueryInt64Slice(r *http.Request, field string) ([]int64, error) {
 	return vals, nil
 }
 
-// ParseGraphsRequest returns the url for further request to get bus ids.
-func ParseGraphsRequest(r *http.Request, api string) (string, error) {
-	bus, err := ParseQueryParam(r, "bus")
+// ParseGraphsRequest parses query 'bus', 'city', and returns the bus.
+func ParseGraphsRequest(r *http.Request) (*httpv1.Bus, error) {rseQueryParam(r, "bus")
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	city, err := ParseQueryParam(r, "city")
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	url := fmt.Sprintf("%s?cities=%s&nums=%s", api, city, bus)
-	return url, nil
+	return &httpv1.Bus{
+		City: city,
+		Num:  bus,
+	}, nil
+}
+
+// ParsePermissionsFilter parses 'user_ids', 'actions', and returns the filter.
+func ParsePermissionsFilter(r *http.Request) (*dataprovider.PermissionFilter, error) {
+	ids, err := ParseQueryInt64Slice(r, "user_ids")
+	if err != nil {
+		return nil, err
+	}
+
+	actions, err := ParseQueryParams(r, "actions")
+	if err != nil {
+		return nil, err
+	}
+
+	return dataprovider.
+		NewPermissionFilter().
+		ByUserIDs(ids...).
+		ByActions(actions...), nil
 }
 
 // ParsePermissionsFilter parses user_ids and actions, and returns the filter.

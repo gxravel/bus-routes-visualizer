@@ -6,16 +6,16 @@ import (
 	"io"
 	"os"
 
+	httpv1 "github.com/gxravel/bus-routes-visualizer/internal/api/http/handler/v1"
 	"github.com/gxravel/bus-routes-visualizer/internal/drawing"
 	ierr "github.com/gxravel/bus-routes-visualizer/internal/errors"
 	log "github.com/gxravel/bus-routes-visualizer/internal/logger"
 	"github.com/gxravel/bus-routes-visualizer/internal/model"
-	v1 "github.com/gxravel/bus-routes-visualizer/internal/service/http/v1"
 )
 
 // GetRoutesDetailed fetches detailed routes and saves them in database.
-func (r *Visualizer) GetRoutesDetailed(ctx context.Context, url string) ([]*v1.RouteDetailed, error) {
-	routes, err := r.busroutes.GetRoutesDetailed(ctx, url)
+func (r *Visualizer) GetRoutesDetailed(ctx context.Context, bus *httpv1.Bus) ([]*httpv1.RouteDetailed, error) {
+	routes, err := r.busroutes.GetRoutesDetailed(ctx, bus)
 	if err != nil {
 		return nil, err
 	}
@@ -32,7 +32,7 @@ func (r *Visualizer) GetRoutesDetailed(ctx context.Context, url string) ([]*v1.R
 }
 
 // GetRoutesGraph returns size of graph and graph itself.
-func (r *Visualizer) GetRoutesGraph(ctx context.Context, routes []*v1.RouteDetailed) (int64, []byte, error) {
+func (r *Visualizer) GetRoutesGraph(ctx context.Context, routes []*httpv1.RouteDetailed) (int64, []byte, error) {
 	graphName := routes[0].City + "_" + routes[0].Bus
 
 	path, err := drawing.DrawRoutes(graphName, routes)
@@ -64,7 +64,7 @@ func (r *Visualizer) GetRoutesGraph(ctx context.Context, routes []*v1.RouteDetai
 	return size, buf.Bytes(), nil
 }
 
-func toDBRoutes(routes []*v1.RouteDetailed) []*model.Route {
+func toDBRoutes(routes []*httpv1.RouteDetailed) []*model.Route {
 	var dbRoutes = make([]*model.Route, 0, len(routes))
 
 	for i, r := range routes {

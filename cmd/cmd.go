@@ -13,11 +13,12 @@ import (
 	"github.com/gxravel/bus-routes-visualizer/internal/dataprovider/mysql"
 	"github.com/gxravel/bus-routes-visualizer/internal/jwt"
 	log "github.com/gxravel/bus-routes-visualizer/internal/logger"
-	service "github.com/gxravel/bus-routes-visualizer/internal/service/http"
+	service "github.com/gxravel/bus-routes-visualizer/internal/service/amqp"
 	"github.com/gxravel/bus-routes-visualizer/internal/storage"
 	"github.com/gxravel/bus-routes-visualizer/internal/visualizer"
 
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/gxravel/bus-routes/pkg/rmq"
 )
 
 func main() {
@@ -68,6 +69,12 @@ func main() {
 
 	txer := mysql.NewTxManager(db)
 
+	rabbit, err := rmq.NewClient(cfg.RabbitMQ, logger)
+	if err != nil {
+		logger.WithErr(err).Fatal("failed to create RabbitMQ client")
+	}
+	defer rabbit.Close()
+
 	visualizer := visualizer.New(
 		cfg,
 		db,
@@ -77,7 +84,7 @@ func main() {
 		mysql.NewRoutePointStore(db, txer),
 		mysql.NewPermissionStore(db, txer),
 		jwt.New(storage, *cfg),
-		service.NewBusRoutesService(logger, cfg),
+		service.NewBusRoutesService(rabbit),
 	)
 
 	apiServer := handler.NewServer(
