@@ -12,20 +12,20 @@ const (
 )
 
 var (
-	V1BusroutesUserTypes = []UserType{UserAdmin, UserGuest, UserService}
+	BusroutesUserTypes = []UserType{UserAdmin, UserGuest, UserService}
 )
 
 type UserTypes []UserType
 
 // Exists returns true if types exist in t.
 func (t UserTypes) Exists(types ...UserType) bool {
-	uniqueTypes := make(map[UserType]struct{}, len(t))
+	allowedTypes := make(map[UserType]struct{}, len(t))
 	for _, ut := range t {
-		uniqueTypes[ut] = struct{}{}
+		allowedTypes[ut] = struct{}{}
 	}
 
 	for _, typ := range types {
-		if _, ok := uniqueTypes[typ]; ok {
+		if _, ok := allowedTypes[typ]; ok {
 			return true
 		}
 	}
