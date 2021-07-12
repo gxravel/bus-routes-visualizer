@@ -67,14 +67,14 @@ var defaults = map[string]interface{}{
 	"environment":      "development",
 	"shutdown_timeout": time.Second * 5,
 
-	"db.url":            "gxravel:gxravel@tcp(localhost:3309)",
+	"db.url":            "user:user@tcp(localhost:3306)",
 	"db.schema_name":    "bus_routes_visualizer",
 	"db.max_open_conns": 2,
 	"db.max_idle_conns": 2,
 
 	"api.serve_swagger": true,
-	"api.address":       ":8000",
-	"api.busroutes":     ":8090/api/v1",
+	"api.address":       ":4000",
+	"api.busroutes":     ":4010/api/v1",
 	"api.read_timeout":  time.Second * 5,
 	"api.write_timeout": time.Second * 5,
 
@@ -82,7 +82,7 @@ var defaults = map[string]interface{}{
 	"logger.format": "json",
 
 	"jwt.access_key":    "jwt_access_very_strong_key",
-	"jwt.access_expiry": time.Minute * 15,
+	"jwt.access_expiry": time.Hour * 2,
 
 	"storage.redis_dsn": "localhost:6378",
 
