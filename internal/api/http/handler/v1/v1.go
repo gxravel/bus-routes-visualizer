@@ -83,3 +83,15 @@ type RoutesResponse struct {
 	Data  *RangeRoutesResponse `json:"data,omitempty"`
 	Error *APIError            `json:"error,omitempty"`
 }
+
+// Response describes http model of permission for api v1.
+type Permission struct {
+	UserID  int64       `json:"user_id"`
+	Actions interface{} `json:"actions"`
+}
+
+// User describes http model of user for api v1.
+type User struct {
+	ID   int64          `json:"id"`
+	Type model.UserType `json:"type"`
+}
