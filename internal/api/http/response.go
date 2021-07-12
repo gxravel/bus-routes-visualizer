@@ -43,6 +43,7 @@ func RespondJSON(ctx context.Context, w http.ResponseWriter, code int, data inte
 	}
 }
 
+// RespondBytes sets content-type and length, and responds with []byte.
 func RespondBytes(ctx context.Context, w http.ResponseWriter, code int, mime MIME, size int64, data []byte) {
 	w.Header().Set(HeaderContentType, mime.String())
 	w.Header().Set(headerContentLength, strconv.FormatInt(size, 10))
@@ -57,6 +58,7 @@ func RespondBytes(ctx context.Context, w http.ResponseWriter, code int, mime MIM
 	}
 }
 
+// RespondImageOK responds with status code 200 in PNG of []byte.
 func RespondImageOK(ctx context.Context, w http.ResponseWriter, size int64, data []byte) {
 	RespondBytes(ctx, w, http.StatusOK, MIMEImagePNG, size, data)
 }
@@ -93,12 +95,12 @@ func RespondData(ctx context.Context, w http.ResponseWriter, code int, val inter
 // RespondError converts error to Reason, resolves http status code and responds with APIError.
 func RespondError(ctx context.Context, w http.ResponseWriter, err error) {
 	reason := ierr.ConvertToReason(err)
-	code := ierr.ResolveStatusCode(ierr.Cause(reason.Err))
+	code := ierr.ResolveStatusCode(reason.Err)
 
 	RespondJSON(ctx, w, code, &httpv1.Response{
-		Error: &ierr.APIError{
-			Reason: &ierr.APIReason{
-				RType:   reason.RType,
+		Error: &httpv1.APIError{
+			Reason: &httpv1.APIReason{
+				RType:   string(reason.RType),
 				Err:     reason.Error(),
 				Message: reason.Message,
 			},

@@ -5,6 +5,7 @@ import (
 
 	api "github.com/gxravel/bus-routes-visualizer/internal/api/http"
 	httpv1 "github.com/gxravel/bus-routes-visualizer/internal/api/http/handler/v1"
+	ierr "github.com/gxravel/bus-routes-visualizer/internal/errors"
 )
 
 func (s *Server) getPermissions(w http.ResponseWriter, r *http.Request) {
@@ -33,8 +34,10 @@ func (s *Server) setPermissions(w http.ResponseWriter, r *http.Request) {
 		api.RespondError(ctx, w, err)
 		return
 	}
-
-	s.logger.WithField("permissions", permissions[0]).Debug("decoded permissions")
+	if len(permissions) == 0 {
+		api.RespondError(ctx, w, ierr.ErrBadRequest)
+		return
+	}
 
 	if err := s.visualizer.SetPermissions(ctx, permissions); err != nil {
 		api.RespondError(ctx, w, err)
