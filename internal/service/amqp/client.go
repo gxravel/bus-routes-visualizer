@@ -18,13 +18,15 @@ const (
 
 // amqpClient wraps rmq.Client to interact with RabbitMQ.
 type amqpClient struct {
-	*rmq.Client
+	publisher *rmq.Publisher
+	consumer  *rmq.Consumer
 }
 
 // newCustomClient creates new instance of amqpClient
-func newCustomClient(client *rmq.Client) *amqpClient {
+func newCustomClient(publisher *rmq.Publisher, consumer *rmq.Consumer) *amqpClient {
 	c := &amqpClient{
-		Client: client,
+		publisher: publisher,
+		consumer:  consumer,
 	}
 
 	return c
@@ -33,14 +35,18 @@ func newCustomClient(client *rmq.Client) *amqpClient {
 // CallRPC calls RPC with message body.
 // Waits an answer and writes it to the response.
 func (c *amqpClient) CallRPC(ctx context.Context, meta *rmq.Meta, body, response interface{}) error {
-	messageBody, err := c.ConvertToMessage(body)
+	messageBody, err := rmq.ConvertToMessage(body)
 	if err != nil {
 		return err
 	}
 
-	delivery, corrID, err := c.Client.CallRPC(meta.QName, messageBody)
+	if err := c.publisher.CallRPC(meta, messageBody); err != nil {
+		return errors.Wrap(err, "failed to call rpc")
+	}
+
+	delivery, err := c.consumer.Consume(meta.QName)
 	if err != nil {
-		return errors.Wrapf(err, "can not call RPC with meta: %v", meta)
+		return errors.Wrap(err, "failed to consume")
 	}
 
 	for {
@@ -49,11 +55,11 @@ func (c *amqpClient) CallRPC(ctx context.Context, meta *rmq.Meta, body, response
 			return nil
 
 		case message := <-delivery:
-			if message.CorrelationId != corrID {
+			if message.CorrelationId != meta.CorrID {
 				continue
 			}
 
-			if err := c.TranslateMessage(message.Body, response); err != nil {
+			if err := rmq.TranslateMessage(message.Body, response); err != nil {
 				return err
 			}
 

@@ -69,11 +69,27 @@ func main() {
 
 	txer := mysql.NewTxManager(db)
 
-	broker, err := rmq.NewClient(cfg.RabbitMQ.URL, logger)
+	publisher, err := rmq.NewPublisher(cfg.RabbitMQ.URL, logger)
 	if err != nil {
-		logger.WithErr(err).Fatal("failed to create RabbitMQ client")
+		logger.WithErr(err).Fatal("failed to create a publisher RabbitMQ client")
 	}
-	defer broker.Close()
+
+	defer func() {
+		if err := publisher.Close(); err != nil {
+			logger.WithErr(err).Error("failed to close publisher RabbitMQ connection")
+		}
+	}()
+
+	consumer, err := rmq.NewConsumer(cfg.RabbitMQ.URL, logger)
+	if err != nil {
+		logger.WithErr(err).Fatal("failed to create a consumer RabbitMQ client")
+	}
+
+	defer func() {
+		if err := consumer.Close(); err != nil {
+			logger.WithErr(err).Error("failed to close consumer RabbitMQ connection")
+		}
+	}()
 
 	visualizer := visualizer.New(
 		cfg,
@@ -84,7 +100,7 @@ func main() {
 		mysql.NewRoutePointStore(db, txer),
 		mysql.NewPermissionStore(db, txer),
 		jwt.New(storage, *cfg),
-		service.NewBusroutesService(broker),
+		service.NewBusroutesService(publisher, consumer),
 	)
 
 	apiServer := handler.NewServer(
