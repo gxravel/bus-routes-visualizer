@@ -8,7 +8,6 @@ import (
 
 	"github.com/gxravel/bus-routes-visualizer/internal/logger"
 
-	"github.com/gxravel/bus-routes/pkg/rmq"
 	"github.com/spf13/viper"
 )
 
@@ -22,7 +21,7 @@ type Config struct {
 	JWT            jwt            `mapstructure:"jwt"`
 	Storage        storage        `mapstructure:"storage"`
 	RemoteServices remoteServices `mapstructure:"remote_services"`
-	RabbitMQ       rmq.Config     `mapstructure:"rabbitmq"`
+	RabbitMQ       rabbitMQ       `mapstructure:"rabbitmq"`
 }
 
 type api struct {
@@ -58,6 +57,10 @@ type remoteServices struct {
 	DefaultTimeout  time.Duration `mapstructure:"default_timeout"`
 	DefaultMaxConns int           `mapstructure:"default_max_conns"`
 	SkipTLSVerify   bool          `mapstructure:"skip_tls_verify"`
+}
+
+type rabbitMQ struct {
+	URL string `mapstructure:"url"`
 }
 
 var defaults = map[string]interface{}{

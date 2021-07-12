@@ -69,7 +69,7 @@ func main() {
 
 	txer := mysql.NewTxManager(db)
 
-	broker, err := rmq.NewClient(cfg.RabbitMQ, logger)
+	broker, err := rmq.NewClient(cfg.RabbitMQ.URL, logger)
 	if err != nil {
 		logger.WithErr(err).Fatal("failed to create RabbitMQ client")
 	}
