@@ -69,11 +69,11 @@ func main() {
 
 	txer := mysql.NewTxManager(db)
 
-	rabbit, err := rmq.NewClient(cfg.RabbitMQ, logger)
+	broker, err := rmq.NewClient(cfg.RabbitMQ, logger)
 	if err != nil {
 		logger.WithErr(err).Fatal("failed to create RabbitMQ client")
 	}
-	defer rabbit.Close()
+	defer broker.Close()
 
 	visualizer := visualizer.New(
 		cfg,
@@ -84,7 +84,7 @@ func main() {
 		mysql.NewRoutePointStore(db, txer),
 		mysql.NewPermissionStore(db, txer),
 		jwt.New(storage, *cfg),
-		service.NewBusRoutesService(rabbit),
+		service.NewBusRoutesService(broker),
 	)
 
 	apiServer := handler.NewServer(
