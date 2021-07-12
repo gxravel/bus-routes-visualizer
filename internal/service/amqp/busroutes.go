@@ -32,13 +32,9 @@ func (s *BusRoutesService) GetRoutesDetailed(ctx context.Context, bus *httpv1.Bu
 		)
 	ctx = log.CtxWithLogger(ctx, logger)
 
-	meta := &rmq.Meta{
-		QName: "abcde",
-	}
-
 	rangeResponse := &httpv1.RangeRoutesResponse{}
 
-	if err := s.client.processRequest(ctx, meta, bus, rangeResponse); err != nil {
+	if err := s.client.processRequest(ctx, rmq.MetaDetailedRoutesRPC, bus, rangeResponse); err != nil {
 		return nil, err
 	}
 	if rangeResponse == nil {
