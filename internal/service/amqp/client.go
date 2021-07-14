@@ -23,18 +23,60 @@ type amqpClient struct {
 }
 
 // newCustomClient creates new instance of amqpClient
-func newCustomClient(publisher *rmq.Publisher, consumer *rmq.Consumer) *amqpClient {
-	c := &amqpClient{
+func newCustomClient(
+	publisher *rmq.Publisher,
+	consumer *rmq.Consumer,
+) *amqpClient {
+
+	return &amqpClient{
 		publisher: publisher,
 		consumer:  consumer,
 	}
-
-	return c
 }
 
-// CallRPC calls RPC with message body.
+// processRequest processes a request by calling RPC, processing response and logging the data.
+func (c *amqpClient) processRequest(ctx context.Context, meta *rmq.Meta, body, result interface{}) error {
+	c.publisher.UseFreeChannel()
+	c.consumer.UseFreeChannel()
+
+	defer func() {
+		c.publisher.FreeChannel()
+		c.consumer.FreeChannel()
+	}()
+
+	logger := log.FromContext(ctx)
+
+	defer func(start time.Time) {
+		logger.
+			WithFields(
+				"duration", time.Since(start),
+				"meta", meta,
+			).
+			Debug("processed amqp request")
+	}(time.Now())
+
+	ctx, cancel := context.WithTimeout(ctx, defaultTimeout)
+	defer cancel()
+
+	response := &amqpv1.Response{Data: result}
+	if err := c.callRPC(ctx, meta, body, response); err != nil {
+		logger = logger.WithErr(err)
+		return err
+	}
+
+	logger = logger.WithField("response", response)
+
+	if err := c.processResponse(response); err != nil {
+		logger = logger.WithErr(err)
+		return err
+	}
+
+	return nil
+}
+
+// callRPC calls RPC with message body.
 // Waits an answer and writes it to the response.
-func (c *amqpClient) CallRPC(ctx context.Context, meta *rmq.Meta, body, response interface{}) error {
+func (c *amqpClient) callRPC(ctx context.Context, meta *rmq.Meta, body, response interface{}) error {
 	messageBody, err := rmq.ConvertToMessage(body)
 	if err != nil {
 		return err
@@ -52,7 +94,7 @@ func (c *amqpClient) CallRPC(ctx context.Context, meta *rmq.Meta, body, response
 	for {
 		select {
 		case <-ctx.Done():
-			return nil
+			return errors.New("context is done")
 
 		case message := <-delivery:
 			if message.CorrelationId != meta.CorrID {
@@ -66,33 +108,6 @@ func (c *amqpClient) CallRPC(ctx context.Context, meta *rmq.Meta, body, response
 			return nil
 		}
 	}
-}
-
-// processRequest processes a request by calling RPC, processing response and logging the data.
-func (c *amqpClient) processRequest(ctx context.Context, meta *rmq.Meta, body, result interface{}) error {
-	logger := log.FromContext(ctx).WithField("meta", meta)
-
-	defer func(start time.Time) {
-		logger.WithField("duration", time.Since(start)).Debug("processed amqp request")
-	}(time.Now())
-
-	ctx, cancel := context.WithTimeout(ctx, defaultTimeout)
-	defer cancel()
-
-	response := &amqpv1.Response{Data: result}
-	if err := c.CallRPC(ctx, meta, body, response); err != nil {
-		logger = logger.WithErr(err)
-		return err
-	}
-
-	logger = logger.WithField("response", response)
-
-	if err := c.processResponse(response); err != nil {
-		logger = logger.WithErr(err)
-		return err
-	}
-
-	return nil
 }
 
 // processResponse processses a response by making the checks and handling response error.
