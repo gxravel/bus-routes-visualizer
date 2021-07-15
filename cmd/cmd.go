@@ -95,6 +95,11 @@ func main() {
 		}
 	}()
 
+	busroutesService, err := service.NewBusroutesService(ctx, publisher, consumer)
+	if err != nil {
+		logger.WithErr(err).Fatal("failed to create busroutes service")
+	}
+
 	visualizer := visualizer.New(
 		cfg,
 		db,
@@ -104,7 +109,7 @@ func main() {
 		mysql.NewRoutePointStore(db, txer),
 		mysql.NewPermissionStore(db, txer),
 		jwt.New(storage, *cfg),
-		service.NewBusroutesService(publisher, consumer),
+		busroutesService,
 	)
 
 	apiServer := handler.NewServer(

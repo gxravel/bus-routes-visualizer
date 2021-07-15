@@ -2,47 +2,48 @@ package amqp
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	ierr "github.com/gxravel/bus-routes-visualizer/internal/errors"
 	log "github.com/gxravel/bus-routes-visualizer/internal/logger"
 
+	"github.com/google/uuid"
 	"github.com/gxravel/bus-routes/pkg/rmq"
 	amqpv1 "github.com/gxravel/bus-routes/pkg/rmq/v1"
-	"github.com/pkg/errors"
+	"github.com/streadway/amqp"
 )
 
 const (
 	defaultTimeout = time.Second * 5
 )
 
-// amqpClient wraps rmq.Client to interact with RabbitMQ.
+// amqpClient wraps rmq.Publisher to publish requests.
 type amqpClient struct {
 	publisher *rmq.Publisher
-	consumer  *rmq.Consumer
+
+	// deliveries is to bring delivery to the particular correlation ID.
+	deliveries map[string]chan *amqp.Delivery
 }
 
 // newCustomClient creates new instance of amqpClient
 func newCustomClient(
 	publisher *rmq.Publisher,
-	consumer *rmq.Consumer,
 ) *amqpClient {
 
 	return &amqpClient{
 		publisher: publisher,
-		consumer:  consumer,
+
+		deliveries: make(map[string]chan *amqp.Delivery),
 	}
 }
 
 // processRequest processes a request by calling RPC, processing response and logging the data.
 func (c *amqpClient) processRequest(ctx context.Context, meta *rmq.Meta, body, result interface{}) error {
-	c.publisher.UseFreeChannel()
-	c.consumer.UseFreeChannel()
+	publisher, free := c.publisher.WithFreeChannel()
+	defer free()
 
-	defer func() {
-		c.publisher.FreeChannel()
-		c.consumer.FreeChannel()
-	}()
+	client := newCustomClient(publisher)
 
 	logger := log.FromContext(ctx)
 
@@ -55,18 +56,23 @@ func (c *amqpClient) processRequest(ctx context.Context, meta *rmq.Meta, body, r
 			Debug("processed amqp request")
 	}(time.Now())
 
+	meta.CorrID = uuid.New().String()
+
+	c.deliveries[meta.CorrID] = make(chan *amqp.Delivery)
+	defer delete(c.deliveries, meta.CorrID)
+
 	ctx, cancel := context.WithTimeout(ctx, defaultTimeout)
 	defer cancel()
 
 	response := &amqpv1.Response{Data: result}
-	if err := c.callRPC(ctx, meta, body, response); err != nil {
+	if err := client.callRPC(ctx, meta, c.deliveries[meta.CorrID], body, response); err != nil {
 		logger = logger.WithErr(err)
 		return err
 	}
 
 	logger = logger.WithField("response", response)
 
-	if err := c.processResponse(response); err != nil {
+	if err := client.processResponse(response); err != nil {
 		logger = logger.WithErr(err)
 		return err
 	}
@@ -76,38 +82,27 @@ func (c *amqpClient) processRequest(ctx context.Context, meta *rmq.Meta, body, r
 
 // callRPC calls RPC with message body.
 // Waits an answer and writes it to the response.
-func (c *amqpClient) callRPC(ctx context.Context, meta *rmq.Meta, body, response interface{}) error {
+func (c *amqpClient) callRPC(ctx context.Context, meta *rmq.Meta, delivery chan *amqp.Delivery, body, response interface{}) error {
 	messageBody, err := rmq.ConvertToMessage(body)
 	if err != nil {
 		return err
 	}
 
-	if err := c.publisher.CallRPC(meta, messageBody); err != nil {
-		return errors.Wrap(err, "failed to call rpc")
+	if err := c.publisher.Produce(meta, messageBody); err != nil {
+		return err
 	}
 
-	delivery, err := c.consumer.Consume(meta.QName)
-	if err != nil {
-		return errors.Wrap(err, "failed to consume")
-	}
-
-	for {
-		select {
-		case <-ctx.Done():
-			return errors.New("context is done")
-
-		case message := <-delivery:
-			if message.CorrelationId != meta.CorrID {
-				continue
-			}
-
-			if err := rmq.TranslateMessage(message.Body, response); err != nil {
-				return err
-			}
-
-			return nil
+	select {
+	case message := <-delivery:
+		if err := rmq.TranslateMessage(message.Body, response); err != nil {
+			return err
 		}
+
+	case <-ctx.Done():
+		return errors.New("context done")
 	}
+
+	return nil
 }
 
 // processResponse processses a response by making the checks and handling response error.

@@ -12,12 +12,14 @@ require (
 	github.com/go-swagger/go-swagger v0.27.0
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0 // indirect
 	github.com/golangci/golangci-lint v1.41.1
+	github.com/google/uuid v1.2.0
 	github.com/gxravel/bus-routes/pkg/rmq v0.0.0
 	github.com/jmoiron/sqlx v1.3.4
 	github.com/lopezator/migrator v0.3.0
 	github.com/pkg/errors v0.9.1
 	github.com/rs/zerolog v1.23.0
 	github.com/spf13/viper v1.8.1
+	github.com/streadway/amqp v1.0.0
 	golang.org/x/image v0.0.0-20210628002857-a66eb6448b8d // indirect
 )
 
